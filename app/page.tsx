@@ -8,8 +8,7 @@ import {
 } from "@/components/portal/PortalSections";
 import { PostFeed } from "@/components/portal/PostFeed";
 import { CategoryNav } from "@/components/portal/CategoryNav";
-import { fetchCommentsForPosts, fetchPortalPayload } from "@/lib/portal/data";
-import type { PortalCommentRow } from "@/lib/portal/types";
+import { fetchPortalPayload } from "@/lib/portal/data";
 import { tryCreateServerSupabaseAuthClient } from "@/lib/supabase/server-auth";
 
 export const dynamic = "force-dynamic";
@@ -25,13 +24,6 @@ export default async function HomePage() {
       : { data: null };
 
   const { content, posts, error } = await fetchPortalPayload();
-  const postIds = posts.map((p) => p.id);
-  const allComments = await fetchCommentsForPosts(postIds);
-  const commentsByPost: Record<string, PortalCommentRow[]> = {};
-  for (const c of allComments) {
-    if (!commentsByPost[c.post_id]) commentsByPost[c.post_id] = [];
-    commentsByPost[c.post_id].push(c);
-  }
 
   return (
     <div className="min-h-dvh pb-16">
@@ -55,8 +47,6 @@ export default async function HomePage() {
         <section className="space-y-3">
           <PostFeed
             posts={posts}
-            commentsByPost={commentsByPost}
-            user={user ? { id: user.id, email: user.email } : null}
             feedTitle={content.feed.title}
             feedSubtitle={content.feed.subtitle}
           />

@@ -8,14 +8,16 @@ import { VideoEmbed } from "@/components/portal/VideoEmbed";
 
 export const dynamic = "force-dynamic";
 
-export default async function PostDetailPage({ params }: { params: { id: string } }) {
+export default async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  
   const sb = await tryCreateServerSupabaseAuthClient();
   const {
     data: { user },
   } = sb ? await sb.auth.getUser() : { data: { user: null } };
 
   const { posts } = await fetchPortalPayload();
-  const post = posts.find((p) => p.id === params.id);
+  const post = posts.find((p) => p.id === id);
 
   if (!post) {
     notFound();

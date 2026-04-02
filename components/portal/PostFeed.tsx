@@ -2,21 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import type { PortalCommentRow, PortalPostRow } from "@/lib/portal/types";
+import type { PortalPostRow } from "@/lib/portal/types";
 
 type Props = {
   posts: PortalPostRow[];
-  commentsByPost: Record<string, PortalCommentRow[]>;
-  user: { id: string; email?: string | null } | null;
   feedTitle: string;
   feedSubtitle: string;
 };
-
-function coverUrl(post: PortalPostRow): string | null {
-  if (post.profile_image_url?.trim()) return post.profile_image_url;
-  const first = post.gallery_image_urls.find((u) => u.trim());
-  return first ?? null;
-}
 
 function FeedHeading({ title, subtitle }: { title: string; subtitle: string }) {
   return (
@@ -27,7 +19,7 @@ function FeedHeading({ title, subtitle }: { title: string; subtitle: string }) {
   );
 }
 
-export function PostFeed({ posts, commentsByPost, user, feedTitle, feedSubtitle }: Props) {
+export function PostFeed({ posts, feedTitle, feedSubtitle }: Props) {
   if (posts.length === 0) {
     return (
       <div className="space-y-5">
