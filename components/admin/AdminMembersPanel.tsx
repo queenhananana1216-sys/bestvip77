@@ -262,15 +262,15 @@ export function AdminMembersPanel() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-zinc-900">會員 CRM</h2>
-          <p className="mt-1 text-sm text-zinc-600">
+          <h2 className="text-lg font-semibold tracking-[-0.02em] text-stone-900">會員 CRM</h2>
+          <p className="mt-1 text-sm leading-relaxed text-stone-600">
             以中文為主、韓文為輔的會員管理介面。可搜尋中文、韓文、英文姓名與 초성、Email、Phone，並直接處理審核與備註。
           </p>
         </div>
         <button
           type="button"
           onClick={() => void load()}
-          className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm"
+          className="rounded-xl border border-stone-300 bg-(--bv-surface) px-3 py-2 text-sm text-stone-700 transition hover:bg-stone-50"
         >
           重新整理 / 새로고침
         </button>
@@ -284,15 +284,18 @@ export function AdminMembersPanel() {
         <StatCard label="7日活躍 / 7일 활동" value={stats.active7d} tone="violet" />
       </div>
 
-      <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+      <div
+        className="rounded-[14px] border border-stone-200/80 bg-(--bv-surface) p-4"
+        style={{ boxShadow: "var(--bv-shadow-sm)" }}
+      >
         <div className="grid gap-3 lg:grid-cols-[minmax(0,2fr),repeat(5,minmax(0,1fr))]">
-          <label className="block text-xs font-medium text-zinc-500">
+          <label className="block text-xs font-medium text-stone-500">
             搜尋 / 검색
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="中文 / 한글 / 초성 / email / phone"
-              className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
             />
           </label>
           <SelectField
@@ -360,12 +363,22 @@ export function AdminMembersPanel() {
         </div>
       </div>
 
-      {err ? <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{err}</p> : null}
+      {err ? (
+        <p
+          className="rounded-[12px] border border-rose-200/80 bg-rose-50/90 px-4 py-3 text-sm text-rose-900"
+          style={{ boxShadow: "var(--bv-shadow-sm)" }}
+        >
+          {err}
+        </p>
+      ) : null}
 
-      {loading ? <p className="text-sm text-zinc-500">載入會員資料中… / 회원 자료를 불러오는 중…</p> : null}
+      {loading ? <p className="text-sm text-stone-500">載入會員資料中… / 회원 자료를 불러오는 중…</p> : null}
 
       {!loading && filteredRows.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-white px-4 py-8 text-center text-sm text-zinc-500">
+        <div
+          className="rounded-[14px] border border-dashed border-stone-300 bg-(--bv-surface) px-4 py-8 text-center text-sm text-stone-500"
+          style={{ boxShadow: "var(--bv-shadow-sm)" }}
+        >
           查無符合條件的會員。/ 조건에 맞는 회원이 없습니다.
         </div>
       ) : null}
@@ -406,9 +419,12 @@ function StatCard({
             : "bg-zinc-50 text-zinc-700 ring-zinc-200";
 
   return (
-    <div className={`rounded-2xl px-4 py-3 shadow-sm ring-1 ${toneClass}`}>
-      <p className="text-xs font-medium">{label}</p>
-      <p className="mt-2 text-2xl font-semibold">{value}</p>
+    <div
+      className={`rounded-[14px] border px-4 py-4 ring-1 ${toneClass}`}
+      style={{ boxShadow: "var(--bv-shadow-sm)" }}
+    >
+      <p className="text-[11px] font-medium uppercase tracking-[0.12em]">{label}</p>
+      <p className="mt-2 text-[28px] font-semibold tracking-[-0.03em]">{value}</p>
     </div>
   );
 }
@@ -425,12 +441,12 @@ function SelectField({
   options: { value: string; label: string }[];
 }) {
   return (
-    <label className="block text-xs font-medium text-zinc-500">
+    <label className="block text-xs font-medium text-stone-500">
       {label}
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm"
+        className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -477,11 +493,14 @@ function MemberCard({
     adminNote !== (row.admin_note ?? "");
 
   return (
-    <article className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <article
+      className="rounded-[14px] border border-stone-200/80 bg-(--bv-surface) p-5"
+      style={{ boxShadow: "var(--bv-shadow-sm)" }}
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-lg font-semibold text-zinc-900">{row.display_name_zh ?? row.email ?? row.user_id}</h3>
+            <h3 className="text-lg font-semibold tracking-[-0.02em] text-stone-900">{row.display_name_zh ?? row.email ?? row.user_id}</h3>
             <span className={`rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${badgeClass(row.status)}`}>{statusText(row.status)}</span>
             <span
               className={`rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${
@@ -491,10 +510,10 @@ function MemberCard({
               {isPhoneVerified(row) ? "SMS 已驗證" : "SMS 未驗證"}
             </span>
           </div>
-          {aliasLine(row) ? <p className="mt-1 text-sm text-zinc-500">{aliasLine(row)}</p> : null}
-          <p className="mt-1 font-mono text-xs text-zinc-400">{row.user_id}</p>
+          {aliasLine(row) ? <p className="mt-1 text-sm text-stone-500">{aliasLine(row)}</p> : null}
+          <p className="mt-1 font-mono text-xs text-stone-400">{row.user_id}</p>
         </div>
-        <div className="text-right text-xs text-zinc-500">
+        <div className="text-right text-xs text-stone-500">
           <p>最後登入 / 최근 로그인: {formatRelative(row.last_sign_in_at)}</p>
           <p>最後活動 / 최근 활동: {formatRelative(row.last_seen_at)}</p>
         </div>
@@ -512,39 +531,39 @@ function MemberCard({
       </div>
 
       <div className="mt-4 grid gap-3 lg:grid-cols-3">
-        <label className="block text-xs font-medium text-zinc-500">
+        <label className="block text-xs font-medium text-stone-500">
           中文姓名 / 중국어 이름
           <input
             value={displayNameZh}
             onChange={(e) => setDisplayNameZh(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
           />
         </label>
-        <label className="block text-xs font-medium text-zinc-500">
+        <label className="block text-xs font-medium text-stone-500">
           韓文姓名 / 한국어 이름
           <input
             value={displayNameKo}
             onChange={(e) => setDisplayNameKo(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
           />
         </label>
-        <label className="block text-xs font-medium text-zinc-500">
+        <label className="block text-xs font-medium text-stone-500">
           英文姓名 / English name
           <input
             value={displayNameEn}
             onChange={(e) => setDisplayNameEn(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
           />
         </label>
       </div>
 
-      <label className="mt-3 block text-xs font-medium text-zinc-500">
+      <label className="mt-3 block text-xs font-medium text-stone-500">
         管理員備註 / 관리자 메모
         <textarea
           value={adminNote}
           onChange={(e) => setAdminNote(e.target.value)}
           rows={3}
-          className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
         />
       </label>
 
@@ -561,7 +580,7 @@ function MemberCard({
                 adminNote,
               })
             }
-            className="rounded-lg bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+            className="rounded-xl bg-stone-950 px-3 py-2 text-sm font-medium text-white transition hover:bg-stone-800 disabled:opacity-50"
           >
             {busy ? "保存中…" : "儲存資料 / 저장"}
           </button>
@@ -573,7 +592,7 @@ function MemberCard({
               type="button"
               disabled={busy}
               onClick={() => void onSetStatus("approved")}
-              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+              className="rounded-xl bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-emerald-500 disabled:opacity-50"
             >
               審核通過 / 승인
             </button>
@@ -583,7 +602,7 @@ function MemberCard({
               type="button"
               disabled={busy}
               onClick={() => void onSetStatus("rejected")}
-              className="rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-700 disabled:opacity-50"
+              className="rounded-xl border border-red-200 bg-white px-3 py-2 text-sm text-red-700 transition hover:bg-red-50 disabled:opacity-50"
             >
               拒絕 / 거절
             </button>
@@ -593,7 +612,7 @@ function MemberCard({
               type="button"
               disabled={busy}
               onClick={() => void onSetStatus("pending")}
-              className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 disabled:opacity-50"
+              className="rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 transition hover:bg-stone-50 disabled:opacity-50"
             >
               改回待審 / 대기
             </button>
@@ -606,9 +625,9 @@ function MemberCard({
 
 function InfoItem({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
   return (
-    <div className="rounded-xl bg-zinc-50 px-3 py-2">
-      <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">{label}</p>
-      <p className={`mt-1 text-sm text-zinc-800 ${mono ? "break-all font-mono text-xs" : ""}`}>{value}</p>
+    <div className="rounded-[12px] border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2">
+      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-stone-500">{label}</p>
+      <p className={`mt-1 text-sm text-stone-800 ${mono ? "break-all font-mono text-xs" : ""}`}>{value}</p>
     </div>
   );
 }

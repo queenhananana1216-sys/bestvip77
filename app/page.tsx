@@ -18,6 +18,10 @@ export default async function HomePage() {
   const {
     data: { user },
   } = sb ? await sb.auth.getUser() : { data: { user: null } };
+  const { data: adminRow } =
+    sb && user
+      ? await sb.from("bestvip77_admins").select("user_id").eq("user_id", user.id).maybeSingle()
+      : { data: null };
 
   const { content, posts, error } = await fetchPortalPayload();
   const postIds = posts.map((p) => p.id);
@@ -32,7 +36,7 @@ export default async function HomePage() {
     <div className="min-h-dvh pb-16">
       <PortalHeader
         content={content}
-        initialUser={user ? { id: user.id, email: user.email } : null}
+        initialUser={user ? { id: user.id, email: user.email, isAdmin: Boolean(adminRow) } : null}
       />
 
       <main className="mx-auto max-w-lg space-y-6 px-4 pb-8 pt-6 sm:max-w-xl">

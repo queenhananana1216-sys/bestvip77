@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { AdminMembersPanel } from "@/components/admin/AdminMembersPanel";
 import {
@@ -33,6 +33,28 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
       return null;
     }
   }, [jsonText]);
+
+  const activeTab = useMemo(
+    () =>
+      ({
+        site: {
+          eyebrow: "Content orchestration",
+          title: "站點設定 / 사이트 설정",
+          body: "首頁文案、Telegram、Banner、CTA、備援連結都在這裡集中維護。不是工程感後台，而是營運用編輯桌面。",
+        },
+        posts: {
+          eyebrow: "Merchant deck",
+          title: "廣告卡片 / 광고 카드",
+          body: "商家卡片延續前台的溫暖石色系，這裡只保留必要欄位，避免像表單系統一樣生硬。",
+        },
+        members: {
+          eyebrow: "Member control",
+          title: "會員管理 / CRM",
+          body: "中文優先、韓文輔助的會員管理區，可看審核狀態、活動紀錄與搜尋結果，保持前台同一套氣質。",
+        },
+      })[tab],
+    [tab],
+  );
 
   async function saveSiteJson() {
     setErr(null);
@@ -165,115 +187,197 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
   }
 
   return (
-    <div className="min-h-dvh bg-zinc-100 pb-16 text-zinc-900">
-      <header className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 bg-white/90 px-4 py-3 backdrop-blur">
-        <h1 className="text-lg font-bold">bestvip77 管理後台</h1>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setTab("site")}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium ${tab === "site" ? "bg-orange-500 text-white" : "bg-zinc-200"}`}
-          >
-            站點設定 / 사이트
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("posts")}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium ${tab === "posts" ? "bg-orange-500 text-white" : "bg-zinc-200"}`}
-          >
-            廣告卡片 / 광고
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("members")}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium ${tab === "members" ? "bg-orange-500 text-white" : "bg-zinc-200"}`}
-          >
-            會員管理 / CRM
-          </button>
-          <Link
-            href="/"
-            className="rounded-lg bg-zinc-200 px-3 py-1.5 text-sm font-medium hover:bg-zinc-300"
-          >
-            公開站點 / 공개
-          </Link>
-          <button
-            type="button"
-            onClick={() => void logout()}
-            className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm"
-          >
-            登出 / 로그아웃
-          </button>
+    <div className="min-h-dvh pb-16 text-stone-900">
+      <header
+        className="sticky top-0 z-20 border-b border-white/6 backdrop-blur-md"
+        style={{
+          background: "linear-gradient(180deg, rgba(20,18,17,0.97) 0%, rgba(20,18,17,0.92) 100%)",
+          boxShadow: "0 1px 0 rgba(255,255,255,0.04)",
+        }}
+      >
+        <div className="mx-auto max-w-6xl px-4 py-4">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p
+                className="text-[10px] font-semibold uppercase tracking-[0.28em] text-orange-200/75"
+                style={{ fontFamily: "var(--font-dm), sans-serif" }}
+              >
+                bestvip77
+              </p>
+              <h1 className="mt-1 text-[28px] font-semibold tracking-[-0.03em] text-stone-50">管理後台</h1>
+              <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-stone-400">
+                與前台同一套暖石紙感與深色標頭，讓營運編輯區看起來像品牌的一部分，而不是分離的工具頁。
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/"
+                className="rounded-xl border border-white/8 bg-white/4 px-3 py-2 text-sm font-medium text-stone-200 transition hover:border-white/14 hover:bg-white/7"
+              >
+                公開站點 / 공개
+              </Link>
+              <button
+                type="button"
+                onClick={() => void logout()}
+                className="rounded-xl border border-orange-500/25 bg-orange-500/10 px-3 py-2 text-sm font-medium text-orange-50 transition hover:border-orange-400/35 hover:bg-orange-500/15"
+              >
+                登出 / 로그아웃
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2 rounded-[14px] border border-white/8 bg-white/4 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+            <AdminTabButton active={tab === "site"} onClick={() => setTab("site")}>
+              站點設定 / 사이트
+            </AdminTabButton>
+            <AdminTabButton active={tab === "posts"} onClick={() => setTab("posts")}>
+              廣告卡片 / 광고
+            </AdminTabButton>
+            <AdminTabButton active={tab === "members"} onClick={() => setTab("members")}>
+              會員管理 / CRM
+            </AdminTabButton>
+          </div>
         </div>
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-6">
-        {msg ? <p className="mb-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{msg}</p> : null}
-        {err ? <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{err}</p> : null}
+        <section
+          className="rounded-[14px] border border-stone-200/80 bg-(--bv-surface) px-5 py-5"
+          style={{ boxShadow: "var(--bv-shadow-sm)" }}
+        >
+          <p
+            className="text-[10px] font-semibold uppercase tracking-[0.24em] text-orange-700/80"
+            style={{ fontFamily: "var(--font-dm), sans-serif" }}
+          >
+            {activeTab.eyebrow}
+          </p>
+          <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <h2 className="text-[22px] font-semibold tracking-[-0.03em] text-stone-900">{activeTab.title}</h2>
+              <p className="mt-2 text-[13px] leading-relaxed text-stone-600">{activeTab.body}</p>
+            </div>
+            <div className="rounded-[12px] border border-stone-200/90 bg-(--bv-surface-2) px-4 py-3 text-[12px] leading-relaxed text-stone-500">
+              <p>中文主導，韓文補充。</p>
+              <p className="mt-1">퍼블릭 사이트와 같은 톤으로 운영 화면을 정리했습니다.</p>
+            </div>
+          </div>
+        </section>
 
-        {tab === "members" ? (
-          <AdminMembersPanel />
-        ) : tab === "site" ? (
-          <div className="space-y-4">
-            <p className="text-sm text-zinc-600">
-              首頁標題、Telegram、CTA、Banner、feed 區塊文案可在下方 JSON 直接修改。<strong>商家圖片、名稱、介紹</strong>請到右側「廣告卡片」編輯。
-            </p>
-            <p className="text-xs text-zinc-500">
-              한국어 안내: <code className="rounded bg-zinc-100 px-1">urlStrip.items</code>는 비상용 백업 링크 줄입니다. 비우면 홈에 보이지 않습니다.
-            </p>
-            {parsedPreview ? (
-              <p className="text-xs text-emerald-700">JSON 格式正常，可儲存。/ JSON 파싱 OK</p>
-            ) : (
-              <p className="text-xs text-red-600">JSON 格式錯誤，無法儲存。/ JSON 파싱 실패</p>
-            )}
-            <textarea
-              value={jsonText}
-              onChange={(e) => setJsonText(e.target.value)}
-              spellCheck={false}
-              className="h-[min(70vh,560px)] w-full rounded-xl border border-zinc-300 bg-white p-4 font-mono text-sm"
-            />
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                disabled={busy || !parsedPreview}
-                onClick={() => void saveSiteJson()}
-                className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-              >
-                儲存 / 저장
-              </button>
-              <button
-                type="button"
-                onClick={resetSiteJson}
-                className="rounded-xl border border-zinc-300 px-4 py-2 text-sm"
-              >
-                重設為預設值 / 기본값
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-sm text-zinc-600">
-                商家 / 廣告卡片編輯區。可修改標題、介紹、價格、主圖與多張圖片網址。
+        {msg ? (
+          <p
+            className="mt-4 rounded-[12px] border border-emerald-200/80 bg-emerald-50/90 px-4 py-3 text-sm text-emerald-900"
+            style={{ boxShadow: "var(--bv-shadow-sm)" }}
+          >
+            {msg}
+          </p>
+        ) : null}
+        {err ? (
+          <p
+            className="mt-4 rounded-[12px] border border-rose-200/80 bg-rose-50/90 px-4 py-3 text-sm text-rose-900"
+            style={{ boxShadow: "var(--bv-shadow-sm)" }}
+          >
+            {err}
+          </p>
+        ) : null}
+
+        <div className="mt-5">
+          {tab === "members" ? (
+            <AdminMembersPanel />
+          ) : tab === "site" ? (
+            <section
+              className="space-y-4 rounded-[14px] border border-stone-200/80 bg-(--bv-surface) p-5"
+              style={{ boxShadow: "var(--bv-shadow-sm)" }}
+            >
+              <p className="text-sm leading-relaxed text-stone-600">
+                首頁標題、Telegram、CTA、Banner、feed 區塊文案可在下方 JSON 直接修改。<strong>商家圖片、名稱、介紹</strong>
+                請到「廣告卡片」編輯。
               </p>
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => void addPost()}
-                className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-              >
-                新增卡片 / 새 카드
-              </button>
-            </div>
-            <ul className="space-y-8">
-              {posts.map((p) => (
-                <PostEditor key={p.id} row={p} busy={busy} onSave={savePost} onDelete={deletePost} />
-              ))}
-            </ul>
-            {posts.length === 0 ? <p className="text-sm text-zinc-500">目前沒有卡片，請按「新增卡片」。/ 카드가 없습니다.</p> : null}
-          </div>
-        )}
+              <p className="text-xs leading-relaxed text-stone-500">
+                한국어 안내: <code className="rounded bg-stone-100 px-1">urlStrip.items</code>는 비상용 백업 링크 줄입니다.
+                비우면 홈에 보이지 않습니다.
+              </p>
+              {parsedPreview ? (
+                <p className="text-xs text-emerald-700">JSON 格式正常，可儲存。/ JSON 파싱 OK</p>
+              ) : (
+                <p className="text-xs text-red-600">JSON 格式錯誤，無法儲存。/ JSON 파싱 실패</p>
+              )}
+              <textarea
+                value={jsonText}
+                onChange={(e) => setJsonText(e.target.value)}
+                spellCheck={false}
+                className="h-[min(70vh,560px)] w-full rounded-[13px] border border-stone-200/80 bg-(--bv-surface-2) p-4 font-mono text-sm text-stone-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
+              />
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={busy || !parsedPreview}
+                  onClick={() => void saveSiteJson()}
+                  className="rounded-xl bg-stone-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:opacity-50"
+                >
+                  儲存 / 저장
+                </button>
+                <button
+                  type="button"
+                  onClick={resetSiteJson}
+                  className="rounded-xl border border-stone-300 px-4 py-2 text-sm text-stone-700 transition hover:bg-stone-50"
+                >
+                  重設為預設值 / 기본값
+                </button>
+              </div>
+            </section>
+          ) : (
+            <section
+              className="space-y-6 rounded-[14px] border border-stone-200/80 bg-(--bv-surface) p-5"
+              style={{ boxShadow: "var(--bv-shadow-sm)" }}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="max-w-3xl text-sm leading-relaxed text-stone-600">
+                  商家 / 廣告卡片編輯區。可修改標題、介紹、價格、主圖與多張圖片網址，卡片視覺會延續前台的暖石色與柔和邊界。
+                </p>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void addPost()}
+                  className="rounded-xl bg-stone-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:opacity-50"
+                >
+                  新增卡片 / 새 카드
+                </button>
+              </div>
+              <ul className="space-y-8">
+                {posts.map((p) => (
+                  <PostEditor key={p.id} row={p} busy={busy} onSave={savePost} onDelete={deletePost} />
+                ))}
+              </ul>
+              {posts.length === 0 ? <p className="text-sm text-stone-500">目前沒有卡片，請按「新增卡片」。/ 카드가 없습니다.</p> : null}
+            </section>
+          )}
+        </div>
       </div>
     </div>
+  );
+}
+
+function AdminTabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-[10px] px-3 py-2 text-sm font-medium transition ${
+        active
+          ? "bg-(--bv-surface) text-stone-900 shadow-[0_10px_22px_-18px_rgba(0,0,0,0.55)]"
+          : "text-stone-300 hover:bg-white/5 hover:text-stone-100"
+      }`}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -295,42 +399,45 @@ function PostEditor({
   const galleryStr = draft.gallery_image_urls.join("\n");
 
   return (
-    <li className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <li
+      className="rounded-[14px] border border-stone-200/80 bg-(--bv-surface) p-5"
+      style={{ boxShadow: "var(--bv-shadow-sm)" }}
+    >
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block text-xs font-medium text-zinc-500 sm:col-span-2">
+        <label className="block text-xs font-medium text-stone-500 sm:col-span-2">
           卡片標題 / 업체명·광고 제목
           <input
             value={draft.title}
             onChange={(e) => setDraft({ ...draft, title: e.target.value })}
-            className="mt-1 w-full rounded-lg border border-zinc-200 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
           />
         </label>
-        <label className="block text-xs font-medium text-zinc-500 sm:col-span-2">
+        <label className="block text-xs font-medium text-stone-500 sm:col-span-2">
           介紹文案 / 업체 설명
           <textarea
             value={draft.body_text ?? ""}
             onChange={(e) => setDraft({ ...draft, body_text: e.target.value })}
             rows={4}
-            className="mt-1 w-full rounded-lg border border-zinc-200 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
           />
         </label>
-        <label className="block text-xs font-medium text-zinc-500">
+        <label className="block text-xs font-medium text-stone-500">
           價格 / 한 줄 정보
           <input
             value={draft.price_info}
             onChange={(e) => setDraft({ ...draft, price_info: e.target.value })}
-            className="mt-1 w-full rounded-lg border border-zinc-200 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
           />
         </label>
-        <label className="block text-xs font-medium text-zinc-500">
+        <label className="block text-xs font-medium text-stone-500">
           主圖 URL / 프로필 이미지
           <input
             value={draft.profile_image_url}
             onChange={(e) => setDraft({ ...draft, profile_image_url: e.target.value })}
-            className="mt-1 w-full rounded-lg border border-zinc-200 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
           />
         </label>
-        <label className="flex items-center gap-2 text-xs font-medium text-zinc-500 sm:pt-5">
+        <label className="flex items-center gap-2 text-xs font-medium text-stone-500 sm:pt-5">
           <input
             type="checkbox"
             checked={draft.is_pinned}
@@ -338,17 +445,17 @@ function PostEditor({
           />
           置頂
         </label>
-        <label className="block text-xs font-medium text-zinc-500">
+        <label className="block text-xs font-medium text-stone-500">
           排序 / 정렬
           <input
             type="number"
             value={draft.sort_order}
             onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) || 0 })}
-            className="mt-1 w-full rounded-lg border border-zinc-200 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
           />
         </label>
       </div>
-      <label className="mt-3 block text-xs font-medium text-zinc-500">
+      <label className="mt-3 block text-xs font-medium text-stone-500">
         圖片集 URL / 갤러리 이미지 URL
         <textarea
           value={galleryStr}
@@ -360,7 +467,7 @@ function PostEditor({
             setDraft({ ...draft, gallery_image_urls: parts });
           }}
           rows={3}
-          className="mt-1 w-full rounded-lg border border-zinc-200 px-2 py-1.5 font-mono text-xs"
+          className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 font-mono text-xs"
         />
       </label>
       <div className="mt-3 flex flex-wrap gap-2">
@@ -368,7 +475,7 @@ function PostEditor({
           type="button"
           disabled={busy}
           onClick={() => void onSave(draft)}
-          className="rounded-lg bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+          className="rounded-xl bg-stone-950 px-3 py-2 text-sm font-medium text-white transition hover:bg-stone-800 disabled:opacity-50"
         >
           儲存卡片 / 저장
         </button>
@@ -376,7 +483,7 @@ function PostEditor({
           type="button"
           disabled={busy}
           onClick={() => void onDelete(draft.id)}
-          className="rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-700 disabled:opacity-50"
+          className="rounded-xl border border-red-200 bg-white px-3 py-2 text-sm text-red-700 transition hover:bg-red-50 disabled:opacity-50"
         >
           刪除 / 삭제
         </button>
