@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+/* bestvip77 — 웜 스톤·차콜·테라코타 (인위적인 네온 그라데이션 지양) */
+:root {
+  --bv-paper: #f3f0ea;
+  --bv-ink: #1c1917;
+  --bv-ink-soft: #44403c;
+  --bv-muted: #78716c;
+  --bv-accent: #c2410c;
+  --bv-accent-hover: #9a3412;
+  --bv-surface: #fffcf9;
+  --bv-surface-2: #faf7f2;
+  --bv-line: rgba(28, 25, 23, 0.09);
+  --bv-line-strong: rgba(28, 25, 23, 0.14);
+  --bv-shadow: 0 1px 0 rgba(255, 255, 255, 0.65) inset, 0 1px 2px rgba(0, 0, 0, 0.04),
+    0 16px 48px -20px rgba(28, 25, 23, 0.18);
+  --bv-shadow-sm: 0 1px 0 rgba(0, 0, 0, 0.04), 0 4px 16px -4px rgba(28, 25, 23, 0.1);
+  --bv-radius: 14px;
+  --bv-header: #141211;
+}
+
+@theme inline {
+  --color-background: var(--bv-paper);
+  --color-foreground: var(--bv-ink);
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--bv-paper);
+  color: var(--bv-ink);
+  min-height: 100dvh;
+  font-feature-settings: "kern" 1, "liga" 1;
+  background-image: radial-gradient(
+      ellipse 120% 80% at 50% -30%,
+      rgba(194, 65, 12, 0.055),
+      transparent 55%
+    ),
+    radial-gradient(ellipse 80% 50% at 100% 0%, rgba(120, 113, 108, 0.05), transparent 45%);
+}
+
+::selection {
+  background: rgba(194, 65, 12, 0.15);
+  color: var(--bv-ink);
+}
