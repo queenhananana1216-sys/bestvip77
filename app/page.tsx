@@ -7,6 +7,7 @@ import {
   UrlStripSection,
 } from "@/components/portal/PortalSections";
 import { PostFeed } from "@/components/portal/PostFeed";
+import { CategoryNav } from "@/components/portal/CategoryNav";
 import { fetchCommentsForPosts, fetchPortalPayload } from "@/lib/portal/data";
 import type { PortalCommentRow } from "@/lib/portal/types";
 import { tryCreateServerSupabaseAuthClient } from "@/lib/supabase/server-auth";
@@ -48,6 +49,8 @@ export default async function HomePage() {
 
         <TopBanner content={content} />
         <HeroSection content={content} />
+        
+        <CategoryNav />
 
         <section className="space-y-3">
           <PostFeed
