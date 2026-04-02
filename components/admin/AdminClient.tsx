@@ -41,7 +41,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
     try {
       parsed = JSON.parse(jsonText);
     } catch {
-      setErr("JSON 格式錯誤");
+      setErr("JSON 格式錯誤 / JSON 형식 오류");
       return;
     }
     const content = mergePortalContent(parsed);
@@ -54,10 +54,10 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
         .eq("id", 1);
       if (error) throw error;
       setJsonText(JSON.stringify(content, null, 2));
-      setMsg("사이트 설정을 저장했습니다.");
+      setMsg("站點設定已儲存。/ 사이트 설정을 저장했습니다.");
       router.refresh();
     } catch (e: unknown) {
-      setErr(e instanceof Error ? e.message : "저장 실패");
+      setErr(e instanceof Error ? e.message : "儲存失敗 / 저장 실패");
     } finally {
       setBusy(false);
     }
@@ -88,7 +88,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
       const { data, error } = await sb
         .from("bestvip77_posts")
         .insert({
-          title: "新標題",
+          title: "新標題 / 새 카드",
           body_text: "",
           price_info: "",
           is_pinned: false,
@@ -102,9 +102,9 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
         .single();
       if (error) throw error;
       setPosts((p) => [data as PortalPostRow, ...p]);
-      setMsg("게시물을 추가했습니다.");
+      setMsg("已新增卡片。/ 게시물을 추가했습니다.");
     } catch (e: unknown) {
-      setErr(e instanceof Error ? e.message : "추가 실패");
+      setErr(e instanceof Error ? e.message : "新增失敗 / 추가 실패");
     } finally {
       setBusy(false);
     }
@@ -129,18 +129,18 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
         })
         .eq("id", row.id);
       if (error) throw error;
-      setMsg("저장했습니다.");
+      setMsg("已儲存。/ 저장했습니다.");
       await refreshPosts();
       router.refresh();
     } catch (e: unknown) {
-      setErr(e instanceof Error ? e.message : "저장 실패");
+      setErr(e instanceof Error ? e.message : "儲存失敗 / 저장 실패");
     } finally {
       setBusy(false);
     }
   }
 
   async function deletePost(id: string) {
-    if (!confirm("이 게시물과 댓글을 삭제할까요?")) return;
+    if (!confirm("確定刪除此卡片與留言嗎？ / 이 게시물과 댓글을 삭제할까요?")) return;
     setBusy(true);
     setErr(null);
     try {
@@ -148,10 +148,10 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
       const { error } = await sb.from("bestvip77_posts").delete().eq("id", id);
       if (error) throw error;
       setPosts((p) => p.filter((x) => x.id !== id));
-      setMsg("삭제했습니다.");
+      setMsg("已刪除。/ 삭제했습니다.");
       router.refresh();
     } catch (e: unknown) {
-      setErr(e instanceof Error ? e.message : "삭제 실패");
+      setErr(e instanceof Error ? e.message : "刪除失敗 / 삭제 실패");
     } finally {
       setBusy(false);
     }
@@ -167,46 +167,46 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
   return (
     <div className="min-h-dvh bg-zinc-100 pb-16 text-zinc-900">
       <header className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 bg-white/90 px-4 py-3 backdrop-blur">
-        <h1 className="text-lg font-bold">bestvip77 관리자</h1>
+        <h1 className="text-lg font-bold">bestvip77 管理後台</h1>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setTab("site")}
             className={`rounded-lg px-3 py-1.5 text-sm font-medium ${tab === "site" ? "bg-orange-500 text-white" : "bg-zinc-200"}`}
           >
-            사이트·링크·문구 (JSON)
+            站點設定 / 사이트
           </button>
           <button
             type="button"
             onClick={() => setTab("posts")}
             className={`rounded-lg px-3 py-1.5 text-sm font-medium ${tab === "posts" ? "bg-orange-500 text-white" : "bg-zinc-200"}`}
           >
-            광고 카드
+            廣告卡片 / 광고
           </button>
           <button
             type="button"
             onClick={() => setTab("members")}
             className={`rounded-lg px-3 py-1.5 text-sm font-medium ${tab === "members" ? "bg-orange-500 text-white" : "bg-zinc-200"}`}
           >
-            회원 승인
+            會員管理 / CRM
           </button>
           <Link
             href="/"
             className="rounded-lg bg-zinc-200 px-3 py-1.5 text-sm font-medium hover:bg-zinc-300"
           >
-            공개 사이트
+            公開站點 / 공개
           </Link>
           <button
             type="button"
             onClick={() => void logout()}
             className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm"
           >
-            로그아웃
+            登出 / 로그아웃
           </button>
         </div>
       </header>
 
-      <div className="mx-auto max-w-5xl px-4 py-6">
+      <div className="mx-auto max-w-6xl px-4 py-6">
         {msg ? <p className="mb-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{msg}</p> : null}
         {err ? <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{err}</p> : null}
 
@@ -215,18 +215,15 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
         ) : tab === "site" ? (
           <div className="space-y-4">
             <p className="text-sm text-zinc-600">
-              헤더·히어로·Telegram·광고 CTA·배너·피드 구역 제목(<code className="rounded bg-zinc-100 px-1">feed</code>) 등은 아래
-              JSON에서 수정합니다. <strong>업체 사진·이름·소개</strong>는 이 탭이 아니라 오른쪽 「광고 카드」에서
-              편집하세요.
+              首頁標題、Telegram、CTA、Banner、feed 區塊文案可在下方 JSON 直接修改。<strong>商家圖片、名稱、介紹</strong>請到右側「廣告卡片」編輯。
             </p>
             <p className="text-xs text-zinc-500">
-              <code className="rounded bg-zinc-100 px-1">urlStrip.items</code>는 비상용 <strong>백업 링크 줄</strong>입니다.
-              비우면 홈에 안 나옵니다. A/B/C 같은 샘플은 업체 구분이 아니었습니다.
+              한국어 안내: <code className="rounded bg-zinc-100 px-1">urlStrip.items</code>는 비상용 백업 링크 줄입니다. 비우면 홈에 보이지 않습니다.
             </p>
             {parsedPreview ? (
-              <p className="text-xs text-emerald-700">JSON 파싱 OK (병합 미리보기 반영)</p>
+              <p className="text-xs text-emerald-700">JSON 格式正常，可儲存。/ JSON 파싱 OK</p>
             ) : (
-              <p className="text-xs text-red-600">JSON 파싱 실패 — 저장할 수 없습니다.</p>
+              <p className="text-xs text-red-600">JSON 格式錯誤，無法儲存。/ JSON 파싱 실패</p>
             )}
             <textarea
               value={jsonText}
@@ -241,14 +238,14 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
                 onClick={() => void saveSiteJson()}
                 className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
               >
-                저장
+                儲存 / 저장
               </button>
               <button
                 type="button"
                 onClick={resetSiteJson}
                 className="rounded-xl border border-zinc-300 px-4 py-2 text-sm"
               >
-                기본값으로 덮어쓰기 (주의)
+                重設為預設值 / 기본값
               </button>
             </div>
           </div>
@@ -256,7 +253,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
           <div className="space-y-6">
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm text-zinc-600">
-                업체/광고 카드 — 제목(상호)·소개 본문·가격·프로필·갤러리 URL(여러 장은 줄마다 하나, 위→아래 순서로 노출)
+                商家 / 廣告卡片編輯區。可修改標題、介紹、價格、主圖與多張圖片網址。
               </p>
               <button
                 type="button"
@@ -264,7 +261,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
                 onClick={() => void addPost()}
                 className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
               >
-                새 카드
+                新增卡片 / 새 카드
               </button>
             </div>
             <ul className="space-y-8">
@@ -272,7 +269,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
                 <PostEditor key={p.id} row={p} busy={busy} onSave={savePost} onDelete={deletePost} />
               ))}
             </ul>
-            {posts.length === 0 ? <p className="text-sm text-zinc-500">카드가 없습니다. 「새 카드」를 누르세요.</p> : null}
+            {posts.length === 0 ? <p className="text-sm text-zinc-500">目前沒有卡片，請按「新增卡片」。/ 카드가 없습니다.</p> : null}
           </div>
         )}
       </div>
@@ -301,7 +298,7 @@ function PostEditor({
     <li className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block text-xs font-medium text-zinc-500 sm:col-span-2">
-          제목 (업체명·광고 제목)
+          卡片標題 / 업체명·광고 제목
           <input
             value={draft.title}
             onChange={(e) => setDraft({ ...draft, title: e.target.value })}
@@ -309,7 +306,7 @@ function PostEditor({
           />
         </label>
         <label className="block text-xs font-medium text-zinc-500 sm:col-span-2">
-          소개 본문 (업체 설명·안내 문구)
+          介紹文案 / 업체 설명
           <textarea
             value={draft.body_text ?? ""}
             onChange={(e) => setDraft({ ...draft, body_text: e.target.value })}
@@ -318,7 +315,7 @@ function PostEditor({
           />
         </label>
         <label className="block text-xs font-medium text-zinc-500">
-          가격/한 줄 부가 정보
+          價格 / 한 줄 정보
           <input
             value={draft.price_info}
             onChange={(e) => setDraft({ ...draft, price_info: e.target.value })}
@@ -326,7 +323,7 @@ function PostEditor({
           />
         </label>
         <label className="block text-xs font-medium text-zinc-500">
-          프로필 이미지 URL
+          主圖 URL / 프로필 이미지
           <input
             value={draft.profile_image_url}
             onChange={(e) => setDraft({ ...draft, profile_image_url: e.target.value })}
@@ -342,7 +339,7 @@ function PostEditor({
           置頂
         </label>
         <label className="block text-xs font-medium text-zinc-500">
-          정렬 (숫자 클수록 위)
+          排序 / 정렬
           <input
             type="number"
             value={draft.sort_order}
@@ -352,7 +349,7 @@ function PostEditor({
         </label>
       </div>
       <label className="mt-3 block text-xs font-medium text-zinc-500">
-        갤러리 이미지 URL (줄당 1장, 위에서 아래 순으로 쭉 나열)
+        圖片集 URL / 갤러리 이미지 URL
         <textarea
           value={galleryStr}
           onChange={(e) => {
@@ -373,7 +370,7 @@ function PostEditor({
           onClick={() => void onSave(draft)}
           className="rounded-lg bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
         >
-          이 카드 저장
+          儲存卡片 / 저장
         </button>
         <button
           type="button"
@@ -381,7 +378,7 @@ function PostEditor({
           onClick={() => void onDelete(draft.id)}
           className="rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-700 disabled:opacity-50"
         >
-          삭제
+          刪除 / 삭제
         </button>
       </div>
     </li>

@@ -18,7 +18,9 @@ function normalizeCountry(value: unknown): CarrierCountry {
 }
 
 function invalidPhoneMessage(country: CarrierCountry) {
-  return country === "KR" ? "휴대폰 번호를 정확히 입력해 주세요. 예: 01012345678" : "휴대폰 번호를 정확히 입력해 주세요. 예: 13800138000";
+  return country === "KR"
+    ? "請正確輸入韓國手機號碼，例如 01012345678。/ 한국 휴대폰 번호를 다시 확인해 주세요."
+    : "請正確輸入中國手機號碼，例如 13800138000。/ 중국 휴대폰 번호를 다시 확인해 주세요.";
 }
 
 export default function VerifyPhonePage() {
@@ -59,7 +61,7 @@ export default function VerifyPhonePage() {
         rememberPendingPhone(normalizedPhone);
         setPhone(normalizedPhone);
         setSent(true);
-        setMsg("인증번호를 발송했습니다. 문자로 받은 6자리를 입력해 주세요.");
+        setMsg("驗證碼已送出，請輸入簡訊中的 6 位數。/ 문자로 받은 6자리를 입력해 주세요.");
         return true;
       } finally {
         setSending(false);
@@ -119,7 +121,7 @@ export default function VerifyPhonePage() {
         rememberPendingPhone(normalizedPhone);
         setPhone(normalizedPhone);
         setSent(true);
-        setMsg("인증번호를 발송했습니다. 문자로 받은 6자리를 입력해 주세요.");
+        setMsg("驗證碼已送出，請輸入簡訊中的 6 位數。/ 문자로 받은 6자리를 입력해 주세요.");
       }
     }
 
@@ -142,7 +144,7 @@ export default function VerifyPhonePage() {
     }
 
     if (!token.trim()) {
-      setErr("문자로 받은 인증번호 6자리를 입력해 주세요.");
+      setErr("請輸入簡訊中的 6 位數驗證碼。/ 문자로 받은 인증번호 6자리를 입력해 주세요.");
       return;
     }
 
@@ -160,6 +162,13 @@ export default function VerifyPhonePage() {
         return;
       }
 
+      const { error: syncError } = await sb.rpc("bestvip77_sync_own_phone", {
+        p_phone_e164: normalizedPhone,
+      });
+      if (syncError) {
+        console.warn("[bestvip77] sync own phone:", syncError.message);
+      }
+
       clearPendingPhone();
       router.push("/pending-approval");
       router.refresh();
@@ -171,7 +180,7 @@ export default function VerifyPhonePage() {
   if (!ready) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-neutral-100 px-4 py-10">
-        <p className="text-sm text-neutral-500">휴대폰 인증 화면을 불러오는 중…</p>
+        <p className="text-sm text-neutral-500">載入手機驗證畫面中… / 휴대폰 인증 화면을 불러오는 중…</p>
       </div>
     );
   }
@@ -179,17 +188,18 @@ export default function VerifyPhonePage() {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-neutral-100 px-4 py-10">
       <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-xl ring-1 ring-black/5">
-        <h1 className="text-xl font-bold text-neutral-900">휴대폰 인증</h1>
-        <p className="mt-1 text-sm text-neutral-500">가입 신청을 마무리하려면 실제 수신 가능한 번호로 SMS 인증을 완료해 주세요.</p>
+        <h1 className="text-xl font-bold text-neutral-900">手機驗證</h1>
+        <p className="mt-1 text-sm text-neutral-600">請用可實際收取簡訊的號碼完成驗證，之後才會進入審核流程。</p>
+        <p className="mt-1 text-xs text-neutral-400">실제로 수신 가능한 번호로 SMS 인증을 마쳐야 승인 절차로 넘어갑니다.</p>
 
         <div className="mt-4 rounded-xl bg-neutral-50 px-3 py-2 text-xs text-neutral-600">
-          <p>가입 지역: {country === "KR" ? "한국" : "중국"}</p>
-          <p className="mt-1">문자 수신이 가능한 본인 휴대폰 번호를 입력해 주세요. 같은 번호로는 중복 가입할 수 없습니다.</p>
+          <p>申請地區 / 가입 지역: {country === "KR" ? "韓國 / 한국" : "中國 / 중국"}</p>
+          <p className="mt-1">同一手機號碼不可重複註冊，請直接填可收簡訊的真實號碼。/ 같은 번호로는 중복 가입할 수 없습니다.</p>
         </div>
 
         <div className="mt-5 space-y-4">
           <div>
-            <label className="text-xs font-medium text-neutral-600">휴대폰 번호</label>
+            <label className="text-xs font-medium text-neutral-600">手機號碼 / 휴대폰 번호</label>
             <input
               type="tel"
               inputMode="tel"
@@ -207,11 +217,11 @@ export default function VerifyPhonePage() {
             onClick={() => void requestOtp()}
             className="w-full rounded-xl border border-orange-200 bg-orange-50 py-2.5 text-sm font-semibold text-orange-700 disabled:opacity-60"
           >
-            {sending ? "전송 중…" : sent ? "인증번호 다시 받기" : "인증번호 받기"}
+            {sending ? "發送中…" : sent ? "重新發送驗證碼 / 다시 받기" : "取得驗證碼 / 인증번호 받기"}
           </button>
 
           <div>
-            <label className="text-xs font-medium text-neutral-600">인증번호 6자리</label>
+            <label className="text-xs font-medium text-neutral-600">驗證碼 6 碼 / 인증번호 6자리</label>
             <input
               type="text"
               inputMode="numeric"
@@ -232,12 +242,12 @@ export default function VerifyPhonePage() {
             onClick={() => void onVerify()}
             className="w-full rounded-xl bg-linear-to-r from-orange-500 to-amber-500 py-2.5 text-sm font-semibold text-white shadow disabled:opacity-60"
           >
-            {verifying ? "확인 중…" : "휴대폰 인증 완료"}
+            {verifying ? "確認中…" : "完成驗證 / 휴대폰 인증 완료"}
           </button>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-neutral-500">
-          <span>인증을 마치기 전에는 메인 페이지로 이동할 수 없습니다.</span>
+          <span>完成驗證前無法進入首頁。/ 인증을 마치기 전에는 메인 페이지로 이동할 수 없습니다.</span>
           <LogoutButton />
         </div>
       </div>

@@ -63,7 +63,7 @@ export function explainPhoneAuthError(message: string) {
     lower.includes("already registered") ||
     lower.includes("already in use")
   ) {
-    return "이미 가입에 사용된 휴대폰 번호입니다. 다른 번호를 입력해 주세요.";
+    return "此手機號碼已被使用，請改用其他號碼。/ 이미 가입에 사용된 휴대폰 번호입니다.";
   }
 
   if (
@@ -72,15 +72,15 @@ export function explainPhoneAuthError(message: string) {
     lower.includes("unsupported provider") ||
     lower.includes("phone login")
   ) {
-    return "Supabase Auth에서 Phone 로그인과 SMS provider 설정이 아직 완료되지 않았습니다.";
+    return "Supabase Phone 與 SMS provider 尚未設定完成。/ Supabase Phone 로그인과 SMS provider 설정이 아직 완료되지 않았습니다.";
   }
 
   if (lower.includes("otp") || lower.includes("token")) {
-    return "인증번호가 올바르지 않거나 만료되었습니다. 다시 받아서 입력해 주세요.";
+    return "驗證碼錯誤或已過期，請重新取得。/ 인증번호가 올바르지 않거나 만료되었습니다.";
   }
 
   if (lower.includes("rate limit") || lower.includes("security purposes")) {
-    return "요청이 너무 잦습니다. 잠시 후 다시 시도해 주세요.";
+    return "請求過於頻繁，請稍後再試。/ 요청이 너무 잦습니다. 잠시 후 다시 시도해 주세요.";
   }
 
   return message;
