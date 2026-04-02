@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
@@ -403,37 +404,66 @@ function PostEditor({
       className="rounded-[14px] border border-stone-200/80 bg-(--bv-surface) p-5"
       style={{ boxShadow: "var(--bv-shadow-sm)" }}
     >
+      <div className="mb-4 rounded-[12px] border border-sky-200/60 bg-sky-50/50 px-4 py-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-700/80">欄位對照 / 필드 매핑 안내</p>
+        <ul className="mt-2 space-y-1 text-[12px] leading-relaxed text-sky-900/80">
+          <li><strong>卡片標題</strong> → 商家列表上的名稱（粗體） / 업체 리스트 이름</li>
+          <li><strong>主圖 URL</strong> → 商家列表的封面照片 / 리스트 대표 이미지</li>
+          <li><strong>價格</strong> → 封面下方的價格標籤 / 카드 아래 가격 텍스트</li>
+          <li><strong>介紹文案</strong> → 點擊商家後顯示的詳細說明 / 클릭 시 상세 설명</li>
+          <li><strong>圖片集 URL</strong> → 點擊商家後顯示的照片集（2~3張） / 상세 갤러리</li>
+          <li><strong>置頂</strong> → 封面左上角「置頂」標籤 / 상단 고정 배지</li>
+          <li><strong>排序</strong> → 數字越大排越前面 / 숫자가 클수록 앞에 표시</li>
+        </ul>
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block text-xs font-medium text-stone-500 sm:col-span-2">
-          卡片標題 / 업체명·광고 제목
+          <span className="flex items-center gap-2">
+            卡片標題 / 업체명·광고 제목
+            <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] text-sky-700">→ 리스트 이름</span>
+          </span>
           <input
             value={draft.title}
             onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+            placeholder="예: 金玉滿堂 KTV / 금옥만당 노래방"
             className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
           />
         </label>
         <label className="block text-xs font-medium text-stone-500 sm:col-span-2">
-          介紹文案 / 업체 설명
+          <span className="flex items-center gap-2">
+            介紹文案 / 업체 설명
+            <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] text-sky-700">→ 클릭 시 상세</span>
+          </span>
           <textarea
             value={draft.body_text ?? ""}
             onChange={(e) => setDraft({ ...draft, body_text: e.target.value })}
             rows={4}
+            placeholder="中文介紹 + 한국어 설명을 함께 넣으세요"
             className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
           />
         </label>
         <label className="block text-xs font-medium text-stone-500">
-          價格 / 한 줄 정보
+          <span className="flex items-center gap-2">
+            價格 / 한 줄 정보
+            <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] text-sky-700">→ 카드 가격</span>
+          </span>
           <input
             value={draft.price_info}
             onChange={(e) => setDraft({ ...draft, price_info: e.target.value })}
+            placeholder="예: 包廂 ¥288起 / 룸 288위안~"
             className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
           />
         </label>
         <label className="block text-xs font-medium text-stone-500">
-          主圖 URL / 프로필 이미지
+          <span className="flex items-center gap-2">
+            主圖 URL / 프로필 이미지
+            <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] text-sky-700">→ 대표 사진</span>
+          </span>
           <input
             value={draft.profile_image_url}
             onChange={(e) => setDraft({ ...draft, profile_image_url: e.target.value })}
+            placeholder="https://example.com/shop-photo.jpg"
             className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
           />
         </label>
@@ -443,10 +473,10 @@ function PostEditor({
             checked={draft.is_pinned}
             onChange={(e) => setDraft({ ...draft, is_pinned: e.target.checked })}
           />
-          置頂
+          置頂 / 상단 고정
         </label>
         <label className="block text-xs font-medium text-stone-500">
-          排序 / 정렬
+          排序 / 정렬（數字越大越靠前 / 숫자 클수록 앞에）
           <input
             type="number"
             value={draft.sort_order}
@@ -456,7 +486,10 @@ function PostEditor({
         </label>
       </div>
       <label className="mt-3 block text-xs font-medium text-stone-500">
-        圖片集 URL / 갤러리 이미지 URL
+        <span className="flex items-center gap-2">
+          圖片集 URL / 갤러리 이미지 URL
+          <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] text-sky-700">→ 상세 갤러리 (한 줄에 하나씩)</span>
+        </span>
         <textarea
           value={galleryStr}
           onChange={(e) => {
@@ -467,9 +500,20 @@ function PostEditor({
             setDraft({ ...draft, gallery_image_urls: parts });
           }}
           rows={3}
+          placeholder={"https://example.com/photo-1.jpg\nhttps://example.com/photo-2.jpg"}
           className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 font-mono text-xs"
         />
       </label>
+
+      {draft.profile_image_url?.trim() ? (
+        <div className="mt-3 rounded-[12px] border border-stone-200/80 bg-(--bv-surface-2) p-3">
+          <p className="mb-2 text-[11px] font-medium text-stone-500">主圖預覽 / 대표 이미지 미리보기</p>
+          <div className="relative aspect-video w-full max-w-[200px] overflow-hidden rounded-lg bg-stone-200">
+            <Image src={draft.profile_image_url} alt="preview" fill className="object-cover" sizes="200px" unoptimized />
+          </div>
+        </div>
+      ) : null}
+
       <div className="mt-3 flex flex-wrap gap-2">
         <button
           type="button"
