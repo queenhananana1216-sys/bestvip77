@@ -6,24 +6,12 @@ import type { PortalPostRow } from "@/lib/portal/types";
 
 type Props = {
   posts: PortalPostRow[];
-  feedTitle: string;
-  feedSubtitle: string;
 };
 
-function FeedHeading({ title, subtitle }: { title: string; subtitle: string }) {
-  return (
-    <header className="border-b border-stone-200/80 pb-4">
-      <h2 className="text-[15px] font-semibold tracking-[-0.02em] text-stone-900">{title}</h2>
-      {subtitle ? <p className="mt-1.5 text-[12px] leading-relaxed text-stone-500">{subtitle}</p> : null}
-    </header>
-  );
-}
-
-export function PostFeed({ posts, feedTitle, feedSubtitle }: Props) {
+export function PostFeed({ posts }: Props) {
   if (posts.length === 0) {
     return (
       <div className="space-y-5">
-        <FeedHeading title={feedTitle} subtitle={feedSubtitle} />
         <div
           className="rounded-[14px] border border-dashed border-stone-300/80 bg-(--bv-surface) px-6 py-10 text-center"
           style={{ boxShadow: "var(--bv-shadow-sm)" }}
@@ -39,8 +27,6 @@ export function PostFeed({ posts, feedTitle, feedSubtitle }: Props) {
 
   return (
     <div className="space-y-5">
-      <FeedHeading title={feedTitle} subtitle={feedSubtitle} />
-
       <div className="flex flex-col gap-4">
         {posts.map((post) => (
           <MerchantListCard key={post.id} post={post} />

@@ -1,11 +1,4 @@
 import { PortalHeader } from "@/components/portal/PortalHeader";
-import {
-  AdCtaSection,
-  HeroSection,
-  SocialLinksSection,
-  TopBanner,
-  UrlStripSection,
-} from "@/components/portal/PortalSections";
 import { PostFeed } from "@/components/portal/PostFeed";
 import { CategoryNav } from "@/components/portal/CategoryNav";
 import { fetchPortalPayload } from "@/lib/portal/data";
@@ -39,22 +32,13 @@ export default async function HomePage() {
           </div>
         ) : null}
 
-        <TopBanner content={content} />
-        <HeroSection content={content} />
-        
         <CategoryNav />
 
         <section className="space-y-3">
           <PostFeed
             posts={posts}
-            feedTitle={content.feed.title}
-            feedSubtitle={content.feed.subtitle}
           />
         </section>
-
-        <SocialLinksSection content={content} />
-        <UrlStripSection content={content} />
-        <AdCtaSection content={content} />
       </main>
     </div>
   );
