@@ -95,7 +95,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
     const { data, error } = await sb
       .from("bestvip77_posts")
       .select(
-        "id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,sort_order,created_at",
+        "id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,video_url,sort_order,created_at",
       )
       .order("is_pinned", { ascending: false })
       .order("sort_order", { ascending: false })
@@ -117,10 +117,11 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
           is_pinned: false,
           profile_image_url: "",
           gallery_image_urls: [],
+          video_url: "",
           sort_order: 0,
         })
         .select(
-          "id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,sort_order,created_at",
+          "id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,video_url,sort_order,created_at",
         )
         .single();
       if (error) throw error;
@@ -128,6 +129,69 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
       setMsg("已新增卡片。/ 게시물을 추가했습니다.");
     } catch (e: unknown) {
       setErr(e instanceof Error ? e.message : "新增失敗 / 추가 실패");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function seedDemoPosts() {
+    if (!confirm("插入4筆示範商家資料？現有卡片不受影響。\n데모 업체 4개를 추가합니다. 기존 카드는 영향 없습니다.")) return;
+    setBusy(true);
+    setErr(null);
+    try {
+      const sb = createBrowserClient();
+      const demos = [
+        {
+          title: "金玉滿堂 KTV / 금옥만당 노래방",
+          body_text: "包廂寬敞、音響頂級，適合朋友聚會或商務接待。提供中韓日歌曲庫。\n\n넓은 룸과 최고급 사운드 시스템. 중·한·일 노래 데이터베이스 지원.",
+          price_info: "包廂 ¥288起 / 룸 288위안~",
+          is_pinned: true,
+          profile_image_url: "https://picsum.photos/seed/bv77-ktv/400/400",
+          gallery_image_urls: ["https://picsum.photos/seed/bv77-ktv-1/800/600", "https://picsum.photos/seed/bv77-ktv-2/800/600", "https://picsum.photos/seed/bv77-ktv-3/800/600"],
+          video_url: "",
+          sort_order: 100,
+        },
+        {
+          title: "天上人間 足浴養生 / 천상인간 발마사지",
+          body_text: "結合中醫經絡理論，提供足浴、全身按摩、刮痧拔罐等服務。\n\n중의학 경락 기반 족욕·전신 마사지·부항 서비스.",
+          price_info: "足浴60分 ¥168 / 족욕 60분 168위안",
+          is_pinned: false,
+          profile_image_url: "https://picsum.photos/seed/bv77-spa/400/400",
+          gallery_image_urls: ["https://picsum.photos/seed/bv77-spa-1/800/600", "https://picsum.photos/seed/bv77-spa-2/800/600"],
+          video_url: "",
+          sort_order: 90,
+        },
+        {
+          title: "麗景灣 美容美髮 / 여경만 미용실",
+          body_text: "韓式半永久化妝、日式美甲、燙染護髮一站式服務。\n\n한식 반영구·일본식 네일·펌·염색 원스톱 서비스.",
+          price_info: "剪髮 ¥80 / 커트 80위안",
+          is_pinned: false,
+          profile_image_url: "https://picsum.photos/seed/bv77-salon/400/400",
+          gallery_image_urls: ["https://picsum.photos/seed/bv77-salon-1/800/600", "https://picsum.photos/seed/bv77-salon-2/800/600", "https://picsum.photos/seed/bv77-salon-3/800/600"],
+          video_url: "",
+          sort_order: 80,
+        },
+        {
+          title: "龍門客棧 餐飲 / 용문객잔 중식당",
+          body_text: "正宗川菜、粵菜、東北菜，兼顧韓國人口味。支援外送與包場。\n\n정통 사천·광동·동북 요리. 배달·대관 가능.",
+          price_info: "人均 ¥60-120 / 인당 60~120위안",
+          is_pinned: false,
+          profile_image_url: "https://picsum.photos/seed/bv77-food/400/400",
+          gallery_image_urls: ["https://picsum.photos/seed/bv77-food-1/800/600", "https://picsum.photos/seed/bv77-food-2/800/600"],
+          video_url: "",
+          sort_order: 70,
+        },
+      ];
+      const { data, error } = await sb
+        .from("bestvip77_posts")
+        .insert(demos)
+        .select("id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,video_url,sort_order,created_at");
+      if (error) throw error;
+      setPosts((p) => [...(data as PortalPostRow[]), ...p]);
+      setMsg(`已插入 ${data?.length ?? 0} 筆示範資料。/ 데모 ${data?.length ?? 0}개를 추가했습니다.`);
+      router.refresh();
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : "插入示範資料失敗 / 데모 삽입 실패");
     } finally {
       setBusy(false);
     }
@@ -147,6 +211,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
           is_pinned: row.is_pinned,
           profile_image_url: row.profile_image_url,
           gallery_image_urls: row.gallery_image_urls,
+          video_url: row.video_url,
           sort_order: row.sort_order,
           updated_at: new Date().toISOString(),
         })
@@ -335,14 +400,26 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
                 <p className="max-w-3xl text-sm leading-relaxed text-stone-600">
                   商家 / 廣告卡片編輯區。可修改標題、介紹、價格、主圖與多張圖片網址，卡片視覺會延續前台的暖石色與柔和邊界。
                 </p>
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => void addPost()}
-                  className="rounded-xl bg-stone-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:opacity-50"
-                >
-                  新增卡片 / 새 카드
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void addPost()}
+                    className="rounded-xl bg-stone-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:opacity-50"
+                  >
+                    新增卡片 / 새 카드
+                  </button>
+                  {posts.length === 0 ? (
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => void seedDemoPosts()}
+                      className="rounded-xl border border-orange-300 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-900 transition hover:bg-orange-100 disabled:opacity-50"
+                    >
+                      插入示範 / 데모 삽입
+                    </button>
+                  ) : null}
+                </div>
               </div>
               <ul className="space-y-8">
                 {posts.map((p) => (
@@ -412,6 +489,7 @@ function PostEditor({
           <li><strong>價格</strong> → 封面下方的價格標籤 / 카드 아래 가격 텍스트</li>
           <li><strong>介紹文案</strong> → 點擊商家後顯示的詳細說明 / 클릭 시 상세 설명</li>
           <li><strong>圖片集 URL</strong> → 點擊商家後顯示的照片集（2~3張） / 상세 갤러리</li>
+          <li><strong>影片 URL</strong> → 點擊商家後播放的短影片（YouTube Shorts / MP4） / 상세 영상</li>
           <li><strong>置頂</strong> → 封面左上角「置頂」標籤 / 상단 고정 배지</li>
           <li><strong>排序</strong> → 數字越大排越前面 / 숫자가 클수록 앞에 표시</li>
         </ul>
@@ -502,6 +580,19 @@ function PostEditor({
           rows={3}
           placeholder={"https://example.com/photo-1.jpg\nhttps://example.com/photo-2.jpg"}
           className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 font-mono text-xs"
+        />
+      </label>
+
+      <label className="mt-3 block text-xs font-medium text-stone-500">
+        <span className="flex items-center gap-2">
+          影片 URL / 영상 URL
+          <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] text-sky-700">→ 상세 영상 (YouTube Shorts / MP4)</span>
+        </span>
+        <input
+          value={draft.video_url ?? ""}
+          onChange={(e) => setDraft({ ...draft, video_url: e.target.value })}
+          placeholder="https://youtube.com/shorts/xxxx 또는 https://example.com/video.mp4"
+          className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
         />
       </label>
 

@@ -17,7 +17,7 @@ export default async function AdminPage() {
     sb
       .from("bestvip77_posts")
       .select(
-        "id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,sort_order,created_at",
+        "id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,video_url,sort_order,created_at",
       )
       .order("is_pinned", { ascending: false })
       .order("sort_order", { ascending: false })
