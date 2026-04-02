@@ -25,7 +25,7 @@ export default async function HomePage() {
         initialUser={user ? { id: user.id, email: user.email, isAdmin: Boolean(adminRow) } : null}
       />
 
-      <main className="mx-auto max-w-lg space-y-6 px-4 pb-8 pt-6 sm:max-w-xl">
+      <main className="mx-auto max-w-lg space-y-6 px-4 pb-8 pt-6 sm:max-w-4xl">
         {error ? (
           <div className="rounded-[11px] border border-amber-200/80 bg-amber-50/90 px-4 py-3 text-[12px] leading-relaxed text-amber-950">
             資料載入提示：{error}（請確認 .env.local 與資料庫 migration 055·056·058 已套用）

@@ -132,19 +132,23 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-neutral-100 px-4 py-10">
-      <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-xl ring-1 ring-black/5">
-        <h1 className="text-xl font-bold text-neutral-900">會員註冊</h1>
-        <p className="mt-1 text-sm text-neutral-600">bestvip77 以中文為主，支援韓文與英文姓名欄位。</p>
-        <p className="mt-1 text-xs text-neutral-400">중국어 중심 서비스이며, 한국어·영문 이름도 함께 입력할 수 있습니다.</p>
-        <form onSubmit={(e) => void onSubmit(e)} className="mt-6 space-y-4">
-          <div>
-            <label className="text-xs font-medium text-neutral-600">國家 / 地區 · 국가 / 지역</label>
-            <div className="mt-2 flex gap-3">
-              <label className="flex cursor-pointer items-center gap-2 text-sm">
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-[#FAFAFA] px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[480px] rounded-3xl bg-white/80 p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl border border-white/20">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Create an Account</h1>
+          <p className="mt-2 text-[13px] text-zinc-500">註冊會員以開始使用 / 회원가입을 진행해주세요</p>
+        </div>
+
+        <form onSubmit={(e) => void onSubmit(e)} className="space-y-5">
+          {/* Country Selection */}
+          <div className="space-y-2">
+            <label className="text-[13px] font-medium text-zinc-700">Country / Region</label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 py-3 text-[13px] transition-all ${country === "KR" ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-200 bg-zinc-50/50 text-zinc-600 hover:bg-zinc-100"}`}>
                 <input
                   type="radio"
                   name="country"
+                  className="hidden"
                   checked={country === "KR"}
                   onChange={() => {
                     setCountry("KR");
@@ -153,10 +157,11 @@ export default function RegisterPage() {
                 />
                 韓國 / 한국
               </label>
-              <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <label className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 py-3 text-[13px] transition-all ${country === "CN" ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-200 bg-zinc-50/50 text-zinc-600 hover:bg-zinc-100"}`}>
                 <input
                   type="radio"
                   name="country"
+                  className="hidden"
                   checked={country === "CN"}
                   onChange={() => {
                     setCountry("CN");
@@ -168,12 +173,13 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <div>
-            <label className="text-xs font-medium text-neutral-600">通信商 / 통신사</label>
+          {/* Carrier */}
+          <div className="space-y-1.5">
+            <label className="text-[13px] font-medium text-zinc-700">Carrier / 통신사</label>
             <select
               value={carrier}
               onChange={(e) => setCarrier(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-400/50"
+              className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] outline-none transition-all focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
             >
               {carrierOptions.map((c) => (
                 <option key={c.value} value={c.value}>
@@ -183,50 +189,49 @@ export default function RegisterPage() {
             </select>
           </div>
 
-          <div>
-            <label className="text-xs font-medium text-neutral-600">中文姓名 / 중국어 이름</label>
-            <input
-              type="text"
-              required
-              autoComplete="name"
-              value={displayNameZh}
-              onChange={(e) => setDisplayNameZh(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-400/50"
-            />
+          {/* Names */}
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <label className="text-[13px] font-medium text-zinc-700">中文姓名</label>
+              <input
+                type="text"
+                required
+                autoComplete="name"
+                placeholder="必填"
+                value={displayNameZh}
+                onChange={(e) => setDisplayNameZh(e.target.value)}
+                className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[13px] font-medium text-zinc-700">한국어 이름</label>
+              <input
+                type="text"
+                autoComplete="nickname"
+                placeholder="선택사항"
+                value={displayNameKo}
+                onChange={(e) => setDisplayNameKo(e.target.value)}
+                className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+              />
+            </div>
           </div>
-          <div>
-            <label className="text-xs font-medium text-neutral-600">韓文姓名 / 한국어 이름 (선택)</label>
-            <input
-              type="text"
-              autoComplete="nickname"
-              value={displayNameKo}
-              onChange={(e) => setDisplayNameKo(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-400/50"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-neutral-600">英文姓名 / English name (optional)</label>
-            <input
-              type="text"
-              autoComplete="nickname"
-              value={displayNameEn}
-              onChange={(e) => setDisplayNameEn(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-400/50"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-neutral-600">電子郵件 / 이메일</label>
+
+          {/* Contact Info */}
+          <div className="space-y-1.5">
+            <label className="text-[13px] font-medium text-zinc-700">Email</label>
             <input
               type="email"
               required
               autoComplete="email"
+              placeholder="user@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-400/50"
+              className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
             />
           </div>
-          <div>
-            <label className="text-xs font-medium text-neutral-600">手機號碼 / 휴대폰 번호</label>
+
+          <div className="space-y-1.5">
+            <label className="text-[13px] font-medium text-zinc-700">Phone</label>
             <input
               type="tel"
               required
@@ -235,43 +240,52 @@ export default function RegisterPage() {
               placeholder={phonePlaceholder(country)}
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-400/50"
+              className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
             />
-            <p className="mt-1 text-xs text-neutral-500">請填可接收簡訊的真實號碼，同一號碼不可重複註冊。/ 실제 SMS를 받을 수 있는 번호만 가능하며 같은 번호로 중복 가입할 수 없습니다.</p>
           </div>
-          <div>
-            <label className="text-xs font-medium text-neutral-600">密碼 / 비밀번호 (6자 이상)</label>
+
+          <div className="space-y-1.5">
+            <label className="text-[13px] font-medium text-zinc-700">Password</label>
             <input
               type="password"
               required
               minLength={6}
               autoComplete="new-password"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-400/50"
+              className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
             />
           </div>
-          {err ? <p className="text-sm text-red-600">{err}</p> : null}
-          {msg ? <p className="text-sm text-emerald-700">{msg}</p> : null}
+
+          {err ? (
+            <div className="rounded-lg bg-red-50 px-3 py-2 text-[13px] text-red-600">
+              {err}
+            </div>
+          ) : null}
+          {msg ? (
+            <div className="rounded-lg bg-emerald-50 px-3 py-2 text-[13px] text-emerald-700">
+              {msg}
+            </div>
+          ) : null}
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-linear-to-r from-orange-500 to-amber-500 py-2.5 text-sm font-semibold text-white shadow disabled:opacity-60"
+            className="mt-4 w-full rounded-xl bg-zinc-900 py-3.5 text-[14px] font-medium text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md disabled:opacity-50 active:scale-[0.98]"
           >
-            {loading ? "提交中…" : "提交申請 / 가입 신청"}
+            {loading ? "處理中..." : "Create Account"}
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-neutral-500">
-          已有帳號？ / 이미 계정이 있나요?{" "}
-          <Link href="/login" className="font-semibold text-orange-600 hover:underline">
-            立即登入 / 로그인
-          </Link>
-        </p>
-        <p className="mt-2 text-center">
-          <Link href="/login" className="text-sm text-neutral-400 hover:text-neutral-600">
-            請先登入再進入首頁 / 첫 화면은 로그인 후 이용합니다
-          </Link>
-        </p>
+
+        <div className="mt-8 text-center">
+          <p className="text-[13px] text-zinc-500">
+            已有帳號？ / 이미 계정이 있나요?{" "}
+            <Link href="/login" className="font-semibold text-zinc-900 hover:underline">
+              立即登入
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -28,7 +28,7 @@ export function PortalHeader({ content, initialUser }: Props) {
         boxShadow: "0 1px 0 rgba(255,255,255,0.04)",
       }}
     >
-      <div className="mx-auto flex h-[52px] max-w-xl items-center justify-between px-4 sm:max-w-xl">
+      <div className="mx-auto flex h-[52px] max-w-4xl items-center justify-between px-4">
         <div className="flex items-center gap-3">
           {h.showSearchIcon ? (
             <Link
