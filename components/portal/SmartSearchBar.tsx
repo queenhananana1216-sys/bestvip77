@@ -3,14 +3,12 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import type { PortalPostRow } from "@/lib/portal/types";
 
 export function SmartSearchBar({ posts = [] }: { posts?: PortalPostRow[] }) {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

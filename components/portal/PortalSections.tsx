@@ -148,7 +148,21 @@ export function SocialLinksSection({ content }: { content: PortalSiteContent }) 
   );
 }
 
-function SocialIcon({ href, name, colorFrom, colorTo, shadowColor, icon }: any) {
+function SocialIcon({ 
+  href, 
+  name, 
+  colorFrom, 
+  colorTo, 
+  shadowColor, 
+  icon 
+}: {
+  href: string;
+  name: string;
+  colorFrom: string;
+  colorTo: string;
+  shadowColor: string;
+  icon: React.ReactNode;
+}) {
   return (
     <a href={href} target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center gap-3">
       <div
