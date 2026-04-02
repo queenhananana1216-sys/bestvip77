@@ -48,9 +48,6 @@ export default async function HomePage() {
 
         <TopBanner content={content} />
         <HeroSection content={content} />
-        <UrlStripSection content={content} />
-        <SocialLinksSection content={content} />
-        <AdCtaSection content={content} />
 
         <section className="space-y-3">
           <PostFeed
@@ -61,6 +58,10 @@ export default async function HomePage() {
             feedSubtitle={content.feed.subtitle}
           />
         </section>
+
+        <SocialLinksSection content={content} />
+        <UrlStripSection content={content} />
+        <AdCtaSection content={content} />
       </main>
     </div>
   );
