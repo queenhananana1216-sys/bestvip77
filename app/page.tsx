@@ -1,4 +1,11 @@
 import { PortalHeader } from "@/components/portal/PortalHeader";
+import {
+  AdCtaSection,
+  HeroSection,
+  SocialLinksSection,
+  TopBanner,
+  UrlStripSection,
+} from "@/components/portal/PortalSections";
 import { PostFeed } from "@/components/portal/PostFeed";
 import { CategoryNav } from "@/components/portal/CategoryNav";
 import { fetchPortalPayload } from "@/lib/portal/data";
@@ -23,6 +30,7 @@ export default async function HomePage() {
       <PortalHeader
         content={content}
         initialUser={user ? { id: user.id, email: user.email, isAdmin: Boolean(adminRow) } : null}
+        posts={posts}
       />
 
       <main className="mx-auto max-w-lg space-y-6 px-4 pb-8 pt-6 sm:max-w-4xl">
@@ -32,6 +40,9 @@ export default async function HomePage() {
           </div>
         ) : null}
 
+        <TopBanner content={content} />
+        <HeroSection content={content} />
+
         <CategoryNav />
 
         <section className="space-y-3">
@@ -39,6 +50,10 @@ export default async function HomePage() {
             posts={posts}
           />
         </section>
+
+        <SocialLinksSection content={content} />
+        <UrlStripSection content={content} />
+        <AdCtaSection content={content} />
       </main>
     </div>
   );
