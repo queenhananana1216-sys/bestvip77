@@ -17,21 +17,18 @@ function TelegramMark({ className }: { className?: string }) {
   );
 }
 
-/**
- * 외부 t.me / https 링크 — 단일 톤, 과한 글로우 제거
- */
 export function TelegramCtaButton({ href, children, className = "" }: Props) {
   const url = href.trim();
   const disabled = !url;
 
   const inner = (
     <>
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] text-sky-200">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#2AABEE]/20 bg-[#2AABEE]/10 text-[#4DC4FF]">
         <TelegramMark className="h-[18px] w-[18px]" />
       </span>
       <span className="min-w-0 flex-1 text-left text-[13px] font-semibold tracking-wide">{children}</span>
       <span
-        className="hidden shrink-0 text-[11px] font-medium text-slate-500 sm:inline"
+        className="hidden shrink-0 text-[11px] font-medium text-zinc-600 sm:inline"
         aria-hidden
       >
         ↗
@@ -40,12 +37,12 @@ export function TelegramCtaButton({ href, children, className = "" }: Props) {
   );
 
   const shell =
-    "group relative flex w-full min-h-[48px] items-center gap-3 overflow-hidden rounded-[11px] border px-3.5 py-2.5 text-sm transition duration-200 active:scale-[0.99] sm:w-auto sm:min-w-[220px]";
+    "group relative flex w-full min-h-[48px] items-center gap-3 overflow-hidden rounded-xl border px-3.5 py-2.5 text-sm transition-all duration-200 active:scale-[0.99] sm:w-auto sm:min-w-[220px]";
 
   const enabled =
-    "border-sky-500/25 bg-[#152a42] text-slate-100 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset] hover:border-sky-400/35 hover:bg-[#1a314d]";
+    "border-[#2AABEE]/15 bg-[#2AABEE]/[0.06] text-zinc-200 backdrop-blur-xl hover:border-[#2AABEE]/30 hover:bg-[#2AABEE]/[0.12] hover:shadow-[0_0_16px_rgba(42,171,238,0.15)]";
 
-  const disabledStyle = "cursor-not-allowed border-white/5 bg-white/[0.03] text-slate-500 opacity-50";
+  const disabledStyle = "cursor-not-allowed border-white/5 bg-white/[0.02] text-zinc-600 opacity-50";
 
   if (disabled) {
     return (

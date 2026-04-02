@@ -1,27 +1,32 @@
 @import "tailwindcss";
 
-/* bestvip77 — 웜 스톤·차콜·테라코타 (인위적인 네온 그라데이션 지양) */
+/* bestvip77 — Premium VIP Red-Gold-Black Luxury */
 :root {
-  --bv-paper: #f3f0ea;
-  --bv-ink: #1c1917;
-  --bv-ink-soft: #44403c;
-  --bv-muted: #78716c;
-  --bv-accent: #c2410c;
-  --bv-accent-hover: #9a3412;
-  --bv-surface: #fffcf9;
-  --bv-surface-2: #faf7f2;
-  --bv-line: rgba(28, 25, 23, 0.09);
-  --bv-line-strong: rgba(28, 25, 23, 0.14);
-  --bv-shadow: 0 1px 0 rgba(255, 255, 255, 0.65) inset, 0 1px 2px rgba(0, 0, 0, 0.04),
-    0 16px 48px -20px rgba(28, 25, 23, 0.18);
-  --bv-shadow-sm: 0 1px 0 rgba(0, 0, 0, 0.04), 0 4px 16px -4px rgba(28, 25, 23, 0.1);
-  --bv-radius: 14px;
-  --bv-header: #141211;
+  --bv-paper: #0c0a09;
+  --bv-ink: #fafaf9;
+  --bv-ink-soft: #d6d3d1;
+  --bv-muted: #a8a29e;
+  --bv-accent: #FF3B00;
+  --bv-accent-hover: #FF5722;
+  --bv-gold: #FFD700;
+  --bv-gold-dark: #BF953F;
+  --bv-ruby: #DC143C;
+  --bv-surface: rgba(28,25,23,0.6);
+  --bv-surface-2: rgba(28,25,23,0.8);
+  --bv-glass: rgba(255,255,255,0.04);
+  --bv-glass-border: rgba(255,255,255,0.08);
+  --bv-line: rgba(255,255,255,0.06);
+  --bv-line-strong: rgba(255,255,255,0.12);
+  --bv-shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 4px 24px -4px rgba(0,0,0,0.6);
+  --bv-shadow-sm: 0 1px 0 rgba(255,255,255,0.02), 0 2px 12px -2px rgba(0,0,0,0.4);
+  --bv-shadow-glow: 0 0 40px -8px rgba(255,59,0,0.3);
+  --bv-radius: 16px;
+  --bv-header: #0a0908;
 }
 
 @theme inline {
-  --color-background: var(--bv-paper);
-  --color-foreground: var(--bv-ink);
+  --color-background: #0c0a09;
+  --color-foreground: #fafaf9;
 }
 
 html {
@@ -31,19 +36,83 @@ html {
 }
 
 body {
-  background-color: var(--bv-paper);
-  color: var(--bv-ink);
+  background-color: #0c0a09;
+  color: #fafaf9;
   min-height: 100dvh;
   font-feature-settings: "kern" 1, "liga" 1;
-  background-image: radial-gradient(
-      ellipse 120% 80% at 50% -30%,
-      rgba(194, 65, 12, 0.055),
-      transparent 55%
-    ),
-    radial-gradient(ellipse 80% 50% at 100% 0%, rgba(120, 113, 108, 0.05), transparent 45%);
+  background-image:
+    radial-gradient(ellipse 100% 60% at 50% -20%, rgba(255,59,0,0.08), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(255,215,0,0.05), transparent 50%),
+    radial-gradient(ellipse 40% 30% at 0% 100%, rgba(220,20,60,0.04), transparent 50%);
 }
 
 ::selection {
-  background: rgba(194, 65, 12, 0.15);
-  color: var(--bv-ink);
+  background: rgba(255,215,0,0.25);
+  color: #fafaf9;
+}
+
+@keyframes gold-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes neon-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes float-up {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes holo-rotate {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+.animate-gold-shimmer {
+  animation: gold-shimmer 4s ease-in-out infinite;
+  background-size: 200% 200%;
+}
+
+.animate-neon-pulse {
+  animation: neon-pulse 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float-up 3s ease-in-out infinite;
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #FBF5B7 50%, #AA771C 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass-card {
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.glass-card-hover:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,215,0,0.15);
+  box-shadow: 0 8px 32px -4px rgba(255,59,0,0.15), 0 0 0 1px rgba(255,215,0,0.08);
 }

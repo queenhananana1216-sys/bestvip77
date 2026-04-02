@@ -8,21 +8,21 @@ type Props = {
   disabled?: boolean;
 };
 
-/** 매트 질감 + 얇은 보더 — 과한 네온 그라데이션 대신 */
 const variants: Record<NonNullable<Props["variant"]>, string> = {
   sunset:
-    "border border-orange-900/15 bg-gradient-to-b from-[#ea580c] to-[#c2410c] text-white shadow-[0_1px_0_rgba(255,255,255,0.12)_inset,0_8px_24px_-8px_rgba(194,65,12,0.45)] hover:from-[#f97316] hover:to-[#b45309]",
+    "border border-[#FF3B00]/30 bg-gradient-to-b from-[#FF3B00] to-[#CC2F00] text-white shadow-[0_1px_0_rgba(255,255,255,0.1)_inset,0_8px_24px_-8px_rgba(255,59,0,0.4)] hover:from-[#FF5722] hover:to-[#E64A19] hover:shadow-[0_1px_0_rgba(255,255,255,0.12)_inset,0_12px_32px_-8px_rgba(255,59,0,0.5)]",
   ocean:
-    "border border-slate-600/40 bg-gradient-to-b from-slate-700 to-slate-800 text-slate-50 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_8px_20px_-10px_rgba(15,23,42,0.5)] hover:from-slate-600 hover:to-slate-700",
+    "border border-white/10 bg-gradient-to-b from-white/10 to-white/5 text-zinc-200 backdrop-blur-xl shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_4px_16px_-4px_rgba(0,0,0,0.4)] hover:from-white/15 hover:to-white/8 hover:text-white hover:border-[#FFD700]/15",
   slate:
-    "border border-stone-800/80 bg-gradient-to-b from-stone-800 to-stone-900 text-stone-50 shadow-[0_1px_0_rgba(255,255,255,0.05)_inset,0_6px_20px_-8px_rgba(0,0,0,0.35)] hover:from-stone-700 hover:to-stone-800",
-  rose: "border border-rose-900/20 bg-gradient-to-b from-rose-700 to-rose-800 text-rose-50 shadow-[0_1px_0_rgba(255,255,255,0.08)_inset] hover:from-rose-600 hover:to-rose-700",
+    "border border-white/8 bg-gradient-to-b from-zinc-800 to-zinc-900 text-zinc-200 shadow-[0_1px_0_rgba(255,255,255,0.04)_inset,0_4px_16px_-4px_rgba(0,0,0,0.4)] hover:from-zinc-700 hover:to-zinc-800 hover:text-white",
+  rose:
+    "border border-rose-500/20 bg-gradient-to-b from-rose-600 to-rose-700 text-rose-50 shadow-[0_1px_0_rgba(255,255,255,0.08)_inset,0_8px_24px_-8px_rgba(220,20,60,0.3)] hover:from-rose-500 hover:to-rose-600",
 };
 
 export function GlassLinkButton({ href, children, variant = "sunset", className = "", disabled }: Props) {
   const v = variants[variant];
   const base =
-    "group relative inline-flex min-h-[44px] items-center justify-center overflow-hidden rounded-[11px] px-[18px] py-2.5 text-[13px] font-semibold tracking-wide transition duration-200 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-40";
+    "group relative inline-flex min-h-[44px] items-center justify-center overflow-hidden rounded-xl px-[18px] py-2.5 text-[13px] font-semibold tracking-wide transition-all duration-200 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-40";
 
   if (!href || disabled) {
     return (
