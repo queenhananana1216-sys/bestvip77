@@ -15,7 +15,6 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState("");
   const [displayNameZh, setDisplayNameZh] = useState("");
   const [displayNameKo, setDisplayNameKo] = useState("");
-  const [displayNameEn, setDisplayNameEn] = useState("");
   const [country, setCountry] = useState<CarrierCountry>("KR");
   const [carrier, setCarrier] = useState<string>(carriersForCountry("KR")[0].value);
   const [err, setErr] = useState<string | null>(null);
@@ -62,7 +61,7 @@ export default function RegisterPage() {
       const normalizedPhone = normalizePhoneNumber(country, phone);
       const nextDisplayNameZh = displayNameZh.trim();
       const nextDisplayNameKo = displayNameKo.trim();
-      const nextDisplayNameEn = displayNameEn.trim();
+      const nextDisplayNameEn = "";
       const nextEmail = email.trim();
 
       if (!normalizedPhone) {
