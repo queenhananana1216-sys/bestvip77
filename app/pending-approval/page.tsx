@@ -57,6 +57,8 @@ export default async function PendingApprovalPage() {
               지역: {prof.carrier_country === "KR" ? "한국" : "중국"}
             </li>
             {prof.carrier_label ? <li>통신사 코드: {prof.carrier_label}</li> : null}
+            <li>휴대폰 인증: {user.phone_confirmed_at ? "완료" : "미완료"}</li>
+            {user.phone ? <li>인증 번호: {user.phone}</li> : null}
           </ul>
         ) : null}
         <p className="mt-4 text-xs text-neutral-500">로그인 계정: {user.email}</p>

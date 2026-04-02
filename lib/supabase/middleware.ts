@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 /** 비로그인 허용 */
 const ANON_OK = ["/login", "/register", "/auth/callback"] as const;
+const PHONE_VERIFY_OK = ["/verify-phone", "/auth/callback"] as const;
 
 function matches(pathname: string, prefixes: readonly string[]): boolean {
   return prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
@@ -67,6 +68,15 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
       return redirectTo("/admin");
     }
     return response;
+  }
+
+  const phoneVerified = Boolean(user.phone_confirmed_at);
+
+  if (!phoneVerified) {
+    if (matches(pathname, PHONE_VERIFY_OK)) {
+      return response;
+    }
+    return redirectTo("/verify-phone");
   }
 
   const { data: prof, error: profErr } = await supabase

@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState, type FormEvent } from "react";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { type CarrierCountry, carriersForCountry } from "@/lib/register/carriers";
+import { normalizePhoneNumber, phonePlaceholder, rememberPendingPhone } from "@/lib/register/phone";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [country, setCountry] = useState<CarrierCountry>("KR");
   const [carrier, setCarrier] = useState<string>(carriersForCountry("KR")[0].value);
   const [err, setErr] = useState<string | null>(null);
@@ -47,12 +49,18 @@ export default function RegisterPage() {
       const origin = window.location.origin;
       const valid = carrierOptions.some((c) => c.value === carrier);
       const carrierValue = valid ? carrier : (carrierOptions[0]?.value ?? "MVNO_KR");
+      const normalizedPhone = normalizePhoneNumber(country, phone);
+
+      if (!normalizedPhone) {
+        setErr(country === "KR" ? "휴대폰 번호를 정확히 입력해 주세요. 예: 01012345678" : "휴대폰 번호를 정확히 입력해 주세요. 예: 13800138000");
+        return;
+      }
 
       const { data, error } = await sb.auth.signUp({
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: `${origin}/auth/callback`,
+          emailRedirectTo: `${origin}/auth/callback?next=/verify-phone`,
           data: {
             bestvip77: "true",
             carrier_country: country,
@@ -65,18 +73,20 @@ export default function RegisterPage() {
         return;
       }
 
+      rememberPendingPhone(normalizedPhone);
+
       const uid = data.user?.id;
-      if (uid) {
+      if (uid && data.session) {
         await ensureProfileRow(uid, data.user?.email ?? email.trim(), country, carrierValue);
       }
 
-      setMsg(
-        "가입 신청이 접수되었습니다. 관리자 승인 후 사이트를 이용할 수 있습니다. (이메일 인증을 켠 경우 메일을 확인하세요.)",
-      );
-      router.refresh();
       if (data.session) {
-        router.push("/pending-approval");
+        router.push("/verify-phone?auto=1");
+        router.refresh();
+        return;
       }
+
+      setMsg("가입 신청이 접수되었습니다. 이메일 인증을 완료한 뒤 휴대폰 인증까지 끝내면 승인 대기 화면으로 이동합니다.");
     } finally {
       setLoading(false);
     }
@@ -145,6 +155,20 @@ export default function RegisterPage() {
             />
           </div>
           <div>
+            <label className="text-xs font-medium text-neutral-600">휴대폰 번호</label>
+            <input
+              type="tel"
+              required
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder={phonePlaceholder(country)}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-400/50"
+            />
+            <p className="mt-1 text-xs text-neutral-500">실제로 SMS를 받을 수 있는 번호만 가능하며, 같은 번호로 중복 가입할 수 없습니다.</p>
+          </div>
+          <div>
             <label className="text-xs font-medium text-neutral-600">비밀번호 (6자 이상)</label>
             <input
               type="password"
@@ -161,7 +185,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 py-2.5 text-sm font-semibold text-white shadow disabled:opacity-60"
+            className="w-full rounded-xl bg-linear-to-r from-orange-500 to-amber-500 py-2.5 text-sm font-semibold text-white shadow disabled:opacity-60"
           >
             {loading ? "처리 중…" : "가입 신청"}
           </button>
