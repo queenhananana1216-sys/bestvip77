@@ -26,13 +26,7 @@ export function PortalHeader({ content, initialUser, posts }: Props) {
     <header className="sticky top-0 z-50 border-b border-zinc-200/80 bg-white/95 backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
         <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="hidden sm:block text-[18px] font-black tracking-tighter text-[#FF512F] transition-transform hover:scale-105"
-            style={{ fontFamily: "var(--font-dm), var(--font-noto-tc), sans-serif" }}
-          >
-            {content.siteName}
-          </Link>
+          {/* Logo removed to emphasize the main Hero branding */}
         </div>
 
         <SmartSearchBar posts={posts} />
