@@ -46,33 +46,33 @@ export function TopBanner({ content }: { content: PortalSiteContent }) {
 export function HeroSection({ content }: { content: PortalSiteContent }) {
   const { hero } = content;
   return (
-    <section className="relative flex flex-col items-center justify-center py-6">
+    <section className="relative flex flex-col items-center justify-center py-8">
       <div className="group relative w-full max-w-[400px] cursor-default sm:max-w-[500px]">
         {/* Subtle glow effect */}
-        <div className="absolute -inset-1 rounded-[2.5rem] bg-zinc-300/50 opacity-50 blur-xl transition duration-500 group-hover:opacity-80" />
+        <div className="absolute -inset-1 rounded-[2.5rem] bg-gradient-to-r from-[#FF512F] to-[#F09819] opacity-50 blur-2xl transition duration-500 group-hover:opacity-80" />
         
         {/* Button-like Branding Pill */}
-        <div className="relative flex w-full flex-col items-center justify-center rounded-[2.5rem] border border-zinc-800 bg-zinc-900 px-8 py-10 shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-zinc-900/20">
+        <div className="relative flex w-full flex-col items-center justify-center rounded-[2.5rem] border border-[#FFD700]/30 bg-gradient-to-br from-[#D32F2F] via-[#B71C1C] to-[#880E4F] px-8 py-12 shadow-[0_0_40px_rgba(211,47,47,0.4)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_60px_rgba(255,215,0,0.3)]">
           <p
-            className="mb-3 text-[11px] font-bold uppercase tracking-[0.3em] text-zinc-400"
+            className="mb-3 text-[12px] font-bold uppercase tracking-[0.3em] text-[#FFD700]/90 drop-shadow-md"
             style={{ fontFamily: "var(--font-dm), sans-serif" }}
           >
             {hero.eyebrow}
           </p>
           
           <h1
-            className="text-[clamp(2.5rem,8vw,3.5rem)] font-black leading-none tracking-tighter text-white"
+            className="text-[clamp(2.5rem,8vw,3.5rem)] font-black leading-none tracking-tighter text-white drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)]"
             style={{ fontFamily: "var(--font-noto-tc), var(--font-dm), sans-serif" }}
           >
             {hero.mainBrand}
           </h1>
           
           {hero.versionBubbles.length > 0 ? (
-            <div className="mt-5 flex flex-wrap justify-center gap-2">
+            <div className="mt-6 flex flex-wrap justify-center gap-2">
               {hero.versionBubbles.map((v) => (
                 <span
                   key={v}
-                  className="rounded-full bg-white/10 px-3.5 py-1.5 text-[11px] font-semibold tracking-wide text-zinc-300 backdrop-blur-md"
+                  className="rounded-full border border-[#FFD700]/40 bg-gradient-to-r from-[#FFD700]/20 to-[#FF8C00]/20 px-4 py-1.5 text-[12px] font-bold tracking-wide text-[#FFF8E1] backdrop-blur-md shadow-inner"
                 >
                   {v}
                 </span>
@@ -189,56 +189,54 @@ function SocialCard({
 
   const card = (
     <div
-      className="group relative flex h-full flex-col overflow-hidden rounded-[14px] border border-white/8 p-[1px] transition duration-300"
+      className="group relative flex h-full flex-col overflow-hidden rounded-[20px] p-[2px] transition duration-500 hover:scale-[1.03]"
       style={{
-        background: `linear-gradient(145deg, ${accentFrom}30 0%, rgba(20,18,17,0.25) 50%, ${accentTo}20 100%)`,
+        background: `linear-gradient(145deg, ${accentFrom} 0%, ${accentTo} 50%, #FFD700 100%)`,
+        boxShadow: `0 15px 35px -10px ${glowColor}`,
       }}
     >
       <div
-        className="relative flex h-full flex-col overflow-hidden rounded-[13px] bg-[#111110] p-5"
-        style={{ boxShadow: `0 20px 50px -20px ${glowColor}` }}
+        className="relative flex h-full flex-col overflow-hidden rounded-[18px] bg-gradient-to-b from-white to-stone-50 p-6"
       >
         <div
-          className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full opacity-60 blur-3xl transition-opacity duration-500 group-hover:opacity-90"
-          style={{ background: `radial-gradient(circle, ${accentFrom}40, transparent 70%)` }}
-        />
-        <div
-          className="pointer-events-none absolute -bottom-8 -left-8 h-24 w-24 rounded-full opacity-30 blur-2xl"
-          style={{ background: `radial-gradient(circle, ${accentFrom}30, transparent 70%)` }}
+          className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full opacity-20 blur-3xl transition-opacity duration-500 group-hover:opacity-40"
+          style={{ background: `radial-gradient(circle, ${accentFrom}, transparent 70%)` }}
         />
 
-        <div className="relative">
+        <div className="relative flex items-center gap-4 mb-4">
           <div
-            className="mb-4 flex h-[60px] w-[60px] items-center justify-center rounded-2xl border border-white/10 text-white transition-transform duration-500 group-hover:scale-110 group-hover:rotate-[-4deg]"
+            className="flex h-[56px] w-[56px] shrink-0 items-center justify-center rounded-2xl text-white shadow-lg transition-transform duration-500 group-hover:rotate-[-8deg] group-hover:scale-110"
             style={{
               background: `linear-gradient(135deg, ${accentFrom} 0%, ${accentTo} 100%)`,
-              boxShadow: `0 8px 24px -4px ${accentFrom}50, inset 0 1px 0 rgba(255,255,255,0.2)`,
+              boxShadow: `0 8px 24px -4px ${accentFrom}60, inset 0 2px 4px rgba(255,255,255,0.3)`,
             }}
           >
             {icon}
           </div>
-
-          <p
-            className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500"
-            style={{ fontFamily: "var(--font-dm), sans-serif" }}
-          >
-            {platform}
-          </p>
-          <h3 className="mt-1.5 text-[16px] font-semibold leading-snug tracking-[-0.02em] text-stone-50">{title}</h3>
-          <p className="mt-2 text-[12px] leading-relaxed text-stone-400">{body}</p>
+          <div>
+            <p
+              className="text-[11px] font-bold uppercase tracking-[0.2em] text-stone-400"
+              style={{ fontFamily: "var(--font-dm), sans-serif" }}
+            >
+              {platform}
+            </p>
+            <h3 className="text-[18px] font-bold leading-snug tracking-tight text-stone-900 drop-shadow-sm">{title}</h3>
+          </div>
         </div>
 
-        <div className="relative mt-4 pt-1">
+        <p className="text-[13px] leading-relaxed text-stone-600 font-medium">{body}</p>
+
+        <div className="relative mt-auto pt-5">
           <span
-            className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-white transition duration-300 group-hover:gap-3"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-[14px] font-bold text-white transition-all duration-300 group-hover:gap-3 group-hover:shadow-xl"
             style={{
               background: `linear-gradient(135deg, ${accentFrom} 0%, ${accentTo} 100%)`,
-              boxShadow: `0 4px 16px -4px ${accentFrom}40`,
+              boxShadow: `0 6px 20px -4px ${accentFrom}50`,
             }}
           >
             {label}
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden>
-              <path d="M7 17l9.2-9.2M17 17V8H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden>
+              <path d="M7 17l9.2-9.2M17 17V8H8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
         </div>
@@ -251,7 +249,7 @@ function SocialCard({
   }
 
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="block">
+    <a href={href} target="_blank" rel="noopener noreferrer" className="block h-full">
       {card}
     </a>
   );
@@ -261,27 +259,31 @@ export function AdCtaSection({ content }: { content: PortalSiteContent }) {
   const a = content.adCta;
   return (
     <section
-      className="relative overflow-hidden rounded-[14px] border border-stone-300/60 bg-[var(--bv-surface-2)] px-6 py-8"
-      style={{ boxShadow: "var(--bv-shadow-sm)" }}
+      className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-[#FF512F] to-[#F09819] px-6 py-10 shadow-xl"
     >
       <div
-        className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full opacity-[0.07]"
-        style={{
-          background: "radial-gradient(circle, rgba(194,65,12,0.9) 0%, transparent 70%)",
-        }}
+        className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white opacity-10 blur-3xl"
       />
-      <div className="relative mx-auto max-w-md text-center">
+      <div
+        className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white opacity-10 blur-2xl"
+      />
+      <div className="relative mx-auto max-w-md text-center text-white">
         <h2
-          className="text-[20px] font-semibold tracking-[-0.03em] text-stone-900 sm:text-[22px]"
+          className="text-[22px] font-bold tracking-tight sm:text-[24px] drop-shadow-md"
           style={{ fontFamily: "var(--font-noto-tc), var(--font-dm), sans-serif" }}
         >
           {a.title}
         </h2>
-        <p className="mt-3 text-[13px] leading-relaxed text-stone-600">{a.body}</p>
-        <div className="mt-7 flex justify-center">
-          <GlassLinkButton href={a.buttonHref} variant="slate" className="min-w-[200px]">
+        <p className="mt-3 text-[14px] leading-relaxed text-white/90 font-medium">{a.body}</p>
+        <div className="mt-8 flex justify-center">
+          <a
+            href={a.buttonHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-w-[200px] items-center justify-center rounded-full bg-white px-6 py-3.5 text-[15px] font-bold text-[#FF512F] shadow-[0_8px_20px_rgba(0,0,0,0.15)] transition-transform hover:scale-105 hover:shadow-[0_10px_25px_rgba(0,0,0,0.2)]"
+          >
             {a.buttonLabel}
-          </GlassLinkButton>
+          </a>
         </div>
       </div>
     </section>
