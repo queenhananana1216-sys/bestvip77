@@ -95,7 +95,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
     const { data, error } = await sb
       .from("bestvip77_posts")
       .select(
-        "id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,video_url,sort_order,created_at",
+        "id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,sort_order,created_at",
       )
       .order("is_pinned", { ascending: false })
       .order("sort_order", { ascending: false })
@@ -117,11 +117,10 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
           is_pinned: false,
           profile_image_url: "",
           gallery_image_urls: [],
-          video_url: "",
           sort_order: 0,
         })
         .select(
-          "id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,video_url,sort_order,created_at",
+          "id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,sort_order,created_at",
         )
         .single();
       if (error) throw error;
@@ -148,7 +147,6 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
           is_pinned: true,
           profile_image_url: "https://picsum.photos/seed/bv77-ktv/400/400",
           gallery_image_urls: ["https://picsum.photos/seed/bv77-ktv-1/800/600", "https://picsum.photos/seed/bv77-ktv-2/800/600", "https://picsum.photos/seed/bv77-ktv-3/800/600"],
-          video_url: "",
           sort_order: 100,
         },
         {
@@ -158,7 +156,6 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
           is_pinned: false,
           profile_image_url: "https://picsum.photos/seed/bv77-spa/400/400",
           gallery_image_urls: ["https://picsum.photos/seed/bv77-spa-1/800/600", "https://picsum.photos/seed/bv77-spa-2/800/600"],
-          video_url: "",
           sort_order: 90,
         },
         {
@@ -168,7 +165,6 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
           is_pinned: false,
           profile_image_url: "https://picsum.photos/seed/bv77-salon/400/400",
           gallery_image_urls: ["https://picsum.photos/seed/bv77-salon-1/800/600", "https://picsum.photos/seed/bv77-salon-2/800/600", "https://picsum.photos/seed/bv77-salon-3/800/600"],
-          video_url: "",
           sort_order: 80,
         },
         {
@@ -178,14 +174,13 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
           is_pinned: false,
           profile_image_url: "https://picsum.photos/seed/bv77-food/400/400",
           gallery_image_urls: ["https://picsum.photos/seed/bv77-food-1/800/600", "https://picsum.photos/seed/bv77-food-2/800/600"],
-          video_url: "",
           sort_order: 70,
         },
       ];
       const { data, error } = await sb
         .from("bestvip77_posts")
         .insert(demos)
-        .select("id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,video_url,sort_order,created_at");
+        .select("id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,sort_order,created_at");
       if (error) throw error;
       setPosts((p) => [...(data as PortalPostRow[]), ...p]);
       setMsg(`已插入 ${data?.length ?? 0} 筆示範資料。/ 데모 ${data?.length ?? 0}개를 추가했습니다.`);
@@ -211,7 +206,6 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
           is_pinned: row.is_pinned,
           profile_image_url: row.profile_image_url,
           gallery_image_urls: row.gallery_image_urls,
-          video_url: row.video_url,
           sort_order: row.sort_order,
           updated_at: new Date().toISOString(),
         })
@@ -409,16 +403,14 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
                   >
                     新增卡片 / 새 카드
                   </button>
-                  {posts.length === 0 ? (
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => void seedDemoPosts()}
-                      className="rounded-xl border border-orange-300 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-900 transition hover:bg-orange-100 disabled:opacity-50"
-                    >
-                      插入示範 / 데모 삽입
-                    </button>
-                  ) : null}
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void seedDemoPosts()}
+                    className="rounded-xl border border-orange-300 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-900 transition hover:bg-orange-100 disabled:opacity-50"
+                  >
+                    插入示範 / 데모 삽입
+                  </button>
                 </div>
               </div>
               <ul className="space-y-8">

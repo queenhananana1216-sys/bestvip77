@@ -216,7 +216,7 @@ function MerchantDetailModal({
 
           {(post.video_url ?? "").trim() ? (
             <div className="border-t border-stone-100 bg-stone-950 p-3">
-              <VideoEmbed url={post.video_url} />
+              <VideoEmbed url={post.video_url!} />
             </div>
           ) : null}
 

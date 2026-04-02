@@ -200,7 +200,7 @@ export interface PortalPostRow {
   is_pinned: boolean;
   profile_image_url: string;
   gallery_image_urls: string[];
-  video_url: string;
+  video_url?: string;
   sort_order: number;
   created_at: string;
 }
