@@ -36,6 +36,12 @@ export interface PortalSiteContent {
     ctaLabel: string;
     ctaHref: string;
   };
+  line: {
+    title: string;
+    body: string;
+    ctaLabel: string;
+    ctaHref: string;
+  };
   adCta: {
     title: string;
     body: string;
@@ -74,6 +80,12 @@ export const defaultPortalContent: PortalSiteContent = {
     body: "取得最新網址與公告。",
     ctaLabel: "加入頻道",
     ctaHref: "https://t.me",
+  },
+  line: {
+    title: "官方 LINE",
+    body: "加好友隨時聯繫客服。",
+    ctaLabel: "加入好友",
+    ctaHref: "",
   },
   adCta: {
     title: "廣告發布",
@@ -159,6 +171,14 @@ export function mergePortalContent(raw: unknown): PortalSiteContent {
     if (typeof t.body === "string") base.telegram.body = t.body;
     if (typeof t.ctaLabel === "string") base.telegram.ctaLabel = t.ctaLabel;
     if (typeof t.ctaHref === "string") base.telegram.ctaHref = t.ctaHref;
+  }
+
+  if (isPlainObject(o.line)) {
+    const l = o.line;
+    if (typeof l.title === "string") base.line.title = l.title;
+    if (typeof l.body === "string") base.line.body = l.body;
+    if (typeof l.ctaLabel === "string") base.line.ctaLabel = l.ctaLabel;
+    if (typeof l.ctaHref === "string") base.line.ctaHref = l.ctaHref;
   }
 
   if (isPlainObject(o.adCta)) {

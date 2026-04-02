@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { GlassLinkButton } from "@/components/portal/GlassLinkButton";
-import { TelegramCtaButton } from "@/components/portal/TelegramCtaButton";
 import type { PortalSiteContent, UrlStripTone } from "@/lib/portal/types";
 
 function tonePill(t: UrlStripTone): string {
@@ -132,49 +131,138 @@ export function UrlStripSection({ content }: { content: PortalSiteContent }) {
   );
 }
 
-export function TelegramSection({ content }: { content: PortalSiteContent }) {
-  const t = content.telegram;
-  const href = (t.ctaHref ?? "").trim();
-  const label = (t.ctaLabel ?? "").trim() || (href ? "開啟 Telegram" : "請於後台填入連結");
+export function SocialLinksSection({ content }: { content: PortalSiteContent }) {
+  const tg = content.telegram;
+  const ln = content.line;
 
   return (
-    <section
-      className="relative overflow-hidden rounded-[14px] border border-slate-700/30 bg-[#0c1220] p-6 text-slate-100"
-      style={{ boxShadow: "0 12px 40px -16px rgba(8, 12, 22, 0.55)" }}
-    >
-      <div className="pointer-events-none absolute -right-20 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-[#1e3a5f]/40 blur-3xl" />
-      <div className="pointer-events-none absolute -left-10 bottom-0 h-32 w-48 rounded-full bg-orange-900/15 blur-3xl" />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 100V0h100' fill='none' stroke='%23fff' stroke-width='0.5'/%3E%3C/svg%3E")`,
-        backgroundSize: "24px 24px",
-      }} />
+    <section className="grid gap-3 sm:grid-cols-2">
+      <SocialCard
+        platform="telegram"
+        title={tg.title}
+        body={tg.body}
+        ctaLabel={tg.ctaLabel}
+        ctaHref={tg.ctaHref}
+        accentFrom="#0088cc"
+        accentTo="#005f8f"
+        glowColor="rgba(0,136,204,0.2)"
+        icon={
+          <svg viewBox="0 0 24 24" className="h-8 w-8" fill="currentColor" aria-hidden>
+            <path d="M19.777 5.145 4.54 10.902c-.623.248-.618.593-.113.748l3.815 1.19 1.48 4.55c.18.497.09.695.51.695.335 0 .483-.155.67-.338l2.804-2.722 5.82 4.26c1.07.59 1.84.28 2.1-.97l3.06-14.42c.38-1.52-.58-2.2-1.57-1.75z" />
+          </svg>
+        }
+      />
+      <SocialCard
+        platform="line"
+        title={ln.title}
+        body={ln.body}
+        ctaLabel={ln.ctaLabel}
+        ctaHref={ln.ctaHref}
+        accentFrom="#06c755"
+        accentTo="#04943f"
+        glowColor="rgba(6,199,85,0.18)"
+        icon={
+          <svg viewBox="0 0 24 24" className="h-8 w-8" fill="currentColor" aria-hidden>
+            <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .348-.281.63-.63.63H18.06v1.085h1.306c.349 0 .63.283.63.63 0 .349-.281.631-.63.631h-1.937a.63.63 0 0 1-.63-.631V8.603a.63.63 0 0 1 .63-.63h1.937c.349 0 .63.282.63.63 0 .349-.281.631-.63.631H18.06v1.629h1.306zm-3.26 3.352a.63.63 0 0 1-.631.631.635.635 0 0 1-.521-.27l-1.805-2.466v2.105a.63.63 0 0 1-.63.631.63.63 0 0 1-.631-.631V8.603a.63.63 0 0 1 .631-.63c.2 0 .387.095.521.27l1.805 2.462V8.603a.63.63 0 0 1 .63-.63c.348 0 .631.282.631.63v4.612zm-5.481 0a.63.63 0 0 1-.63.631.631.631 0 0 1-.631-.631V8.603a.63.63 0 0 1 .63-.63c.349 0 .631.282.631.63v4.612zm-2.153.631H6.534a.63.63 0 0 1-.63-.631V8.603a.63.63 0 0 1 .63-.63c.349 0 .63.282.63.63v3.981h1.307c.349 0 .63.283.63.631 0 .349-.281.631-.63.631M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.084.922.258 1.058.592.12.301.079.773.038 1.078l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
+          </svg>
+        }
+      />
+    </section>
+  );
+}
 
-      <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between sm:gap-10">
-        <div className="flex min-w-0 flex-1 items-start gap-4">
-          <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] shadow-inner">
-            <svg viewBox="0 0 24 24" className="h-7 w-7 text-sky-300/95" fill="currentColor" aria-hidden>
-              <path d="M19.777 5.145 4.54 10.902c-.623.248-.618.593-.113.748l3.815 1.19 1.48 4.55c.18.497.09.695.51.695.335 0 .483-.155.67-.338l2.804-2.722 5.82 4.26c1.07.59 1.84.28 2.1-.97l3.06-14.42c.38-1.52-.58-2.2-1.57-1.75z" />
-            </svg>
+function SocialCard({
+  platform,
+  title,
+  body,
+  ctaLabel,
+  ctaHref,
+  accentFrom,
+  accentTo,
+  glowColor,
+  icon,
+}: {
+  platform: string;
+  title: string;
+  body: string;
+  ctaLabel: string;
+  ctaHref: string;
+  accentFrom: string;
+  accentTo: string;
+  glowColor: string;
+  icon: React.ReactNode;
+}) {
+  const href = ctaHref.trim();
+  const label = ctaLabel.trim() || title;
+  const disabled = !href;
+
+  const card = (
+    <div
+      className="group relative flex h-full flex-col overflow-hidden rounded-[14px] border border-white/8 p-[1px] transition duration-300"
+      style={{
+        background: `linear-gradient(145deg, ${accentFrom}30 0%, rgba(20,18,17,0.25) 50%, ${accentTo}20 100%)`,
+      }}
+    >
+      <div
+        className="relative flex h-full flex-col overflow-hidden rounded-[13px] bg-[#111110] p-5"
+        style={{ boxShadow: `0 20px 50px -20px ${glowColor}` }}
+      >
+        <div
+          className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full opacity-60 blur-3xl transition-opacity duration-500 group-hover:opacity-90"
+          style={{ background: `radial-gradient(circle, ${accentFrom}40, transparent 70%)` }}
+        />
+        <div
+          className="pointer-events-none absolute -bottom-8 -left-8 h-24 w-24 rounded-full opacity-30 blur-2xl"
+          style={{ background: `radial-gradient(circle, ${accentFrom}30, transparent 70%)` }}
+        />
+
+        <div className="relative">
+          <div
+            className="mb-4 flex h-[60px] w-[60px] items-center justify-center rounded-2xl border border-white/10 text-white transition-transform duration-500 group-hover:scale-110 group-hover:rotate-[-4deg]"
+            style={{
+              background: `linear-gradient(135deg, ${accentFrom} 0%, ${accentTo} 100%)`,
+              boxShadow: `0 8px 24px -4px ${accentFrom}50, inset 0 1px 0 rgba(255,255,255,0.2)`,
+            }}
+          >
+            {icon}
           </div>
-          <div className="min-w-0">
-            <p
-              className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500"
-              style={{ fontFamily: "var(--font-dm), sans-serif" }}
-            >
-              Telegram
-            </p>
-            <h2 className="mt-1 text-[17px] font-semibold leading-snug tracking-[-0.02em] text-slate-50">
-              {t.title}
-            </h2>
-            <p className="mt-2 text-[13px] leading-relaxed text-slate-400">{t.body}</p>
-          </div>
+
+          <p
+            className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500"
+            style={{ fontFamily: "var(--font-dm), sans-serif" }}
+          >
+            {platform}
+          </p>
+          <h3 className="mt-1.5 text-[16px] font-semibold leading-snug tracking-[-0.02em] text-stone-50">{title}</h3>
+          <p className="mt-2 text-[12px] leading-relaxed text-stone-400">{body}</p>
         </div>
 
-        <div className="shrink-0 sm:max-w-[min(100%,280px)]">
-          <TelegramCtaButton href={t.ctaHref}>{label}</TelegramCtaButton>
+        <div className="relative mt-4 pt-1">
+          <span
+            className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-white transition duration-300 group-hover:gap-3"
+            style={{
+              background: `linear-gradient(135deg, ${accentFrom} 0%, ${accentTo} 100%)`,
+              boxShadow: `0 4px 16px -4px ${accentFrom}40`,
+            }}
+          >
+            {label}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden>
+              <path d="M7 17l9.2-9.2M17 17V8H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
         </div>
       </div>
-    </section>
+    </div>
+  );
+
+  if (disabled) {
+    return <div className="opacity-50">{card}</div>;
+  }
+
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="block">
+      {card}
+    </a>
   );
 }
 

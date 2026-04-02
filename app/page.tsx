@@ -2,7 +2,7 @@ import { PortalHeader } from "@/components/portal/PortalHeader";
 import {
   AdCtaSection,
   HeroSection,
-  TelegramSection,
+  SocialLinksSection,
   TopBanner,
   UrlStripSection,
 } from "@/components/portal/PortalSections";
@@ -49,7 +49,7 @@ export default async function HomePage() {
         <TopBanner content={content} />
         <HeroSection content={content} />
         <UrlStripSection content={content} />
-        <TelegramSection content={content} />
+        <SocialLinksSection content={content} />
         <AdCtaSection content={content} />
 
         <section className="space-y-3">
