@@ -21,19 +21,13 @@ export function PortalHeader({ content, initialUser }: Props) {
   }
 
   return (
-    <header
-      className="sticky top-0 z-50 border-b border-white/6 backdrop-blur-md"
-      style={{
-        background: "linear-gradient(180deg, rgba(20,18,17,0.97) 0%, rgba(20,18,17,0.92) 100%)",
-        boxShadow: "0 1px 0 rgba(255,255,255,0.04)",
-      }}
-    >
-      <div className="mx-auto flex h-[52px] max-w-4xl items-center justify-between px-4">
+    <header className="sticky top-0 z-50 border-b border-zinc-200/80 bg-white/80 backdrop-blur-xl">
+      <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
         <div className="flex items-center gap-3">
           {h.showSearchIcon ? (
             <Link
               href={h.searchHref?.trim() || "#"}
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-400 transition-colors hover:bg-white/6 hover:text-stone-200"
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900"
               aria-label="Search"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -46,14 +40,14 @@ export function PortalHeader({ content, initialUser }: Props) {
             </Link>
           ) : null}
           <span
-            className="text-[15px] font-semibold tracking-[-0.02em] text-stone-100"
+            className="text-[16px] font-bold tracking-tight text-zinc-900"
             style={{ fontFamily: "var(--font-dm), var(--font-noto-tc), sans-serif" }}
           >
             {content.siteName}
           </span>
         </div>
         <nav
-          className="flex items-center gap-1 text-[13px] font-medium"
+          className="flex items-center gap-2 text-[13px] font-medium"
           style={{ fontFamily: "var(--font-dm), var(--font-noto-tc), sans-serif" }}
         >
           {initialUser ? (
@@ -61,13 +55,13 @@ export function PortalHeader({ content, initialUser }: Props) {
               {initialUser.isAdmin ? (
                 <Link
                   href="/admin"
-                  className="rounded-lg border border-orange-500/35 bg-orange-500/12 px-3 py-1.5 text-orange-100/95 transition hover:border-orange-400/45 hover:bg-orange-500/18"
+                  className="rounded-xl border border-zinc-200 bg-white px-3.5 py-1.5 text-zinc-700 shadow-sm transition hover:bg-zinc-50 hover:text-zinc-900"
                 >
                   管理後台
                 </Link>
               ) : null}
               <span
-                className="hidden max-w-[160px] truncate px-2 text-[12px] font-normal text-stone-500 sm:inline"
+                className="hidden max-w-[160px] truncate px-2 text-[12px] font-normal text-zinc-500 sm:inline"
                 title={initialUser.email ?? ""}
               >
                 {initialUser.email}
@@ -75,7 +69,7 @@ export function PortalHeader({ content, initialUser }: Props) {
               <button
                 type="button"
                 onClick={() => void logout()}
-                className="rounded-lg border border-white/8 bg-white/4 px-3 py-1.5 text-stone-200 transition hover:border-white/12 hover:bg-white/7"
+                className="rounded-xl border border-zinc-200 bg-white px-3.5 py-1.5 text-zinc-700 shadow-sm transition hover:bg-zinc-50 hover:text-zinc-900"
               >
                 {h.logoutLabel}
               </button>
@@ -84,13 +78,13 @@ export function PortalHeader({ content, initialUser }: Props) {
             <>
               <Link
                 href="/register"
-                className="rounded-lg px-3 py-1.5 text-stone-400 transition hover:text-stone-100"
+                className="rounded-xl px-3.5 py-1.5 text-zinc-500 transition hover:text-zinc-900"
               >
                 {h.registerLabel}
               </Link>
               <Link
                 href="/login"
-                className="rounded-lg border border-orange-500/35 bg-orange-500/10 px-3 py-1.5 text-orange-100/95 transition hover:border-orange-400/45 hover:bg-orange-500/15"
+                className="rounded-xl bg-zinc-900 px-4 py-1.5 text-white shadow-sm transition hover:bg-zinc-800"
               >
                 {h.loginLabel}
               </Link>

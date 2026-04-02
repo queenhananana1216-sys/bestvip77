@@ -46,42 +46,33 @@ export function TopBanner({ content }: { content: PortalSiteContent }) {
 export function HeroSection({ content }: { content: PortalSiteContent }) {
   const { hero } = content;
   return (
-    <section
-      className="relative overflow-hidden rounded-[14px] p-[1px]"
-      style={{
-        background: "linear-gradient(135deg, rgba(194,65,12,0.45) 0%, rgba(28,25,23,0.15) 45%, rgba(194,65,12,0.25) 100%)",
-        boxShadow: "var(--bv-shadow-sm)",
-      }}
-    >
-      <div className="relative overflow-hidden rounded-[13px] bg-[#161311] px-6 py-8 text-stone-100">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.45]"
-          style={{
-            background:
-              "radial-gradient(ellipse 90% 60% at 20% 0%, rgba(194,65,12,0.35), transparent 55%), radial-gradient(ellipse 70% 50% at 100% 100%, rgba(120,113,108,0.12), transparent 50%)",
-          }}
-        />
-        <div className="pointer-events-none absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22 opacity=%220.035%22/%3E%3C/svg%3E')]" />
-
-        <p
-          className="relative text-center text-[11px] font-semibold uppercase tracking-[0.28em] text-orange-200/75"
-          style={{ fontFamily: "var(--font-dm), sans-serif" }}
-        >
-          {hero.eyebrow}
-        </p>
-        <div className="relative mt-5 flex flex-col items-center gap-4">
+    <section className="relative flex flex-col items-center justify-center py-6">
+      <div className="group relative w-full max-w-[400px] cursor-default sm:max-w-[500px]">
+        {/* Subtle glow effect */}
+        <div className="absolute -inset-1 rounded-[2.5rem] bg-zinc-300/50 opacity-50 blur-xl transition duration-500 group-hover:opacity-80" />
+        
+        {/* Button-like Branding Pill */}
+        <div className="relative flex w-full flex-col items-center justify-center rounded-[2.5rem] border border-zinc-800 bg-zinc-900 px-8 py-10 shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-zinc-900/20">
+          <p
+            className="mb-3 text-[11px] font-bold uppercase tracking-[0.3em] text-zinc-400"
+            style={{ fontFamily: "var(--font-dm), sans-serif" }}
+          >
+            {hero.eyebrow}
+          </p>
+          
           <h1
-            className="text-center text-[clamp(1.75rem,6vw,2.75rem)] font-bold leading-[1.15] tracking-[-0.03em] text-stone-50"
+            className="text-[clamp(2.5rem,8vw,3.5rem)] font-black leading-none tracking-tighter text-white"
             style={{ fontFamily: "var(--font-noto-tc), var(--font-dm), sans-serif" }}
           >
             {hero.mainBrand}
           </h1>
+          
           {hero.versionBubbles.length > 0 ? (
-            <div className="flex flex-wrap justify-center gap-2">
+            <div className="mt-5 flex flex-wrap justify-center gap-2">
               {hero.versionBubbles.map((v) => (
                 <span
                   key={v}
-                  className="rounded-md border border-white/[0.08] bg-white/[0.05] px-2.5 py-1 text-[11px] font-medium tracking-wide text-stone-300"
+                  className="rounded-full bg-white/10 px-3.5 py-1.5 text-[11px] font-semibold tracking-wide text-zinc-300 backdrop-blur-md"
                 >
                   {v}
                 </span>
