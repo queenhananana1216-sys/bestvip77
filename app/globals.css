@@ -116,3 +116,14 @@ body {
   border-color: rgba(255,215,0,0.15);
   box-shadow: 0 8px 32px -4px rgba(255,59,0,0.15), 0 0 0 1px rgba(255,215,0,0.08);
 }
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: #2c1208;
+  caret-color: #2c1208;
+  box-shadow: 0 0 0 1000px #fffaf4 inset !important;
+  transition: background-color 9999s ease-out 0s;
+}
