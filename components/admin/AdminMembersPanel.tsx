@@ -270,7 +270,7 @@ export function AdminMembersPanel() {
         <button
           type="button"
           onClick={() => void load()}
-          className="rounded-xl border border-stone-300 bg-(--bv-surface) px-3 py-2 text-sm text-stone-700 transition hover:bg-stone-50"
+          className="rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 transition hover:bg-stone-50"
         >
           重新整理 / 새로고침
         </button>
@@ -285,7 +285,7 @@ export function AdminMembersPanel() {
       </div>
 
       <div
-        className="rounded-[14px] border border-stone-200/80 bg-(--bv-surface) p-4"
+        className="rounded-[14px] border border-stone-200/80 bg-white p-4"
         style={{ boxShadow: "var(--bv-shadow-sm)" }}
       >
         <div className="grid gap-3 lg:grid-cols-[minmax(0,2fr),repeat(5,minmax(0,1fr))]">
@@ -295,7 +295,7 @@ export function AdminMembersPanel() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="中文 / 한글 / 초성 / email / phone"
-              className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
             />
           </label>
           <SelectField
@@ -376,7 +376,7 @@ export function AdminMembersPanel() {
 
       {!loading && filteredRows.length === 0 ? (
         <div
-          className="rounded-[14px] border border-dashed border-stone-300 bg-(--bv-surface) px-4 py-8 text-center text-sm text-stone-500"
+          className="rounded-[14px] border border-dashed border-stone-300 bg-white px-4 py-8 text-center text-sm text-stone-500"
           style={{ boxShadow: "var(--bv-shadow-sm)" }}
         >
           查無符合條件的會員。/ 조건에 맞는 회원이 없습니다.
@@ -446,7 +446,7 @@ function SelectField({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
+        className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -494,7 +494,7 @@ function MemberCard({
 
   return (
     <article
-      className="rounded-[14px] border border-stone-200/80 bg-(--bv-surface) p-5"
+      className="rounded-[14px] border border-stone-200/80 bg-white p-5"
       style={{ boxShadow: "var(--bv-shadow-sm)" }}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -536,7 +536,7 @@ function MemberCard({
           <input
             value={displayNameZh}
             onChange={(e) => setDisplayNameZh(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
           />
         </label>
         <label className="block text-xs font-medium text-stone-500">
@@ -544,7 +544,7 @@ function MemberCard({
           <input
             value={displayNameKo}
             onChange={(e) => setDisplayNameKo(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
           />
         </label>
         <label className="block text-xs font-medium text-stone-500">
@@ -552,7 +552,7 @@ function MemberCard({
           <input
             value={displayNameEn}
             onChange={(e) => setDisplayNameEn(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
           />
         </label>
       </div>
@@ -563,7 +563,7 @@ function MemberCard({
           value={adminNote}
           onChange={(e) => setAdminNote(e.target.value)}
           rows={3}
-          className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
         />
       </label>
 
@@ -625,7 +625,7 @@ function MemberCard({
 
 function InfoItem({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
   return (
-    <div className="rounded-[12px] border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2">
+    <div className="rounded-[12px] border border-stone-200/80 bg-stone-50 px-3 py-2">
       <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-stone-500">{label}</p>
       <p className={`mt-1 text-sm text-stone-800 ${mono ? "break-all font-mono text-xs" : ""}`}>{value}</p>
     </div>

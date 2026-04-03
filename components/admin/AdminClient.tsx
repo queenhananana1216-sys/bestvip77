@@ -265,7 +265,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
                 bestvip77
               </p>
               <h1 className="mt-1 text-[28px] font-semibold tracking-[-0.03em] text-stone-50">管理後台</h1>
-              <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-stone-400">
+              <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-stone-200">
                 與前台同一套暖石紙感與深色標頭，讓營運編輯區看起來像品牌的一部分，而不是分離的工具頁。
               </p>
             </div>
@@ -302,7 +302,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
 
       <div className="mx-auto max-w-6xl px-4 py-6">
         <section
-          className="rounded-[14px] border border-stone-200/80 bg-(--bv-surface) px-5 py-5"
+          className="rounded-[14px] border border-stone-200/80 bg-white px-5 py-5"
           style={{ boxShadow: "var(--bv-shadow-sm)" }}
         >
           <p
@@ -316,7 +316,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
               <h2 className="text-[22px] font-semibold tracking-[-0.03em] text-stone-900">{activeTab.title}</h2>
               <p className="mt-2 text-[13px] leading-relaxed text-stone-600">{activeTab.body}</p>
             </div>
-            <div className="rounded-[12px] border border-stone-200/90 bg-(--bv-surface-2) px-4 py-3 text-[12px] leading-relaxed text-stone-500">
+            <div className="rounded-[12px] border border-stone-200/90 bg-stone-50 px-4 py-3 text-[12px] leading-relaxed text-stone-600">
               <p>中文主導，韓文補充。</p>
               <p className="mt-1">퍼블릭 사이트와 같은 톤으로 운영 화면을 정리했습니다.</p>
             </div>
@@ -345,7 +345,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
             <AdminMembersPanel />
           ) : tab === "site" ? (
             <section
-              className="space-y-4 rounded-[14px] border border-stone-200/80 bg-(--bv-surface) p-5"
+              className="space-y-4 rounded-[14px] border border-stone-200/80 bg-white p-5"
               style={{ boxShadow: "var(--bv-shadow-sm)" }}
             >
               <p className="text-sm leading-relaxed text-stone-600">
@@ -365,7 +365,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
                 value={jsonText}
                 onChange={(e) => setJsonText(e.target.value)}
                 spellCheck={false}
-                className="h-[min(70vh,560px)] w-full rounded-[13px] border border-stone-200/80 bg-(--bv-surface-2) p-4 font-mono text-sm text-stone-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
+                className="h-[min(70vh,560px)] w-full rounded-[13px] border border-stone-200/80 bg-stone-50 p-4 font-mono text-sm text-stone-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
               />
               <div className="flex flex-wrap gap-2">
                 <button
@@ -387,7 +387,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
             </section>
           ) : (
             <section
-              className="space-y-6 rounded-[14px] border border-stone-200/80 bg-(--bv-surface) p-5"
+              className="space-y-6 rounded-[14px] border border-stone-200/80 bg-white p-5"
               style={{ boxShadow: "var(--bv-shadow-sm)" }}
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -442,7 +442,7 @@ function AdminTabButton({
       onClick={onClick}
       className={`rounded-[10px] px-3 py-2 text-sm font-medium transition ${
         active
-          ? "bg-(--bv-surface) text-stone-900 shadow-[0_10px_22px_-18px_rgba(0,0,0,0.55)]"
+          ? "bg-white text-stone-900 shadow-[0_10px_22px_-18px_rgba(0,0,0,0.55)]"
           : "text-stone-300 hover:bg-white/5 hover:text-stone-100"
       }`}
     >
@@ -470,7 +470,7 @@ function PostEditor({
 
   return (
     <li
-      className="rounded-[14px] border border-stone-200/80 bg-(--bv-surface) p-5"
+      className="rounded-[14px] border border-stone-200/80 bg-white p-5"
       style={{ boxShadow: "var(--bv-shadow-sm)" }}
     >
       <div className="mb-4 rounded-[12px] border border-sky-200/60 bg-sky-50/50 px-4 py-3">
@@ -497,7 +497,7 @@ function PostEditor({
             value={draft.title}
             onChange={(e) => setDraft({ ...draft, title: e.target.value })}
             placeholder="예: 金玉滿堂 KTV / 금옥만당 노래방"
-            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
           />
         </label>
         <label className="block text-xs font-medium text-stone-500 sm:col-span-2">
@@ -510,7 +510,7 @@ function PostEditor({
             onChange={(e) => setDraft({ ...draft, body_text: e.target.value })}
             rows={4}
             placeholder="中文介紹 + 한국어 설명을 함께 넣으세요"
-            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
           />
         </label>
         <label className="block text-xs font-medium text-stone-500">
@@ -522,7 +522,7 @@ function PostEditor({
             value={draft.price_info}
             onChange={(e) => setDraft({ ...draft, price_info: e.target.value })}
             placeholder="예: 包廂 ¥288起 / 룸 288위안~"
-            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
           />
         </label>
         <label className="block text-xs font-medium text-stone-500">
@@ -534,7 +534,7 @@ function PostEditor({
             value={draft.profile_image_url}
             onChange={(e) => setDraft({ ...draft, profile_image_url: e.target.value })}
             placeholder="https://example.com/shop-photo.jpg"
-            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
           />
         </label>
         <label className="flex items-center gap-2 text-xs font-medium text-stone-500 sm:pt-5">
@@ -551,7 +551,7 @@ function PostEditor({
             type="number"
             value={draft.sort_order}
             onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) || 0 })}
-            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
           />
         </label>
       </div>
@@ -571,7 +571,7 @@ function PostEditor({
           }}
           rows={3}
           placeholder={"https://example.com/photo-1.jpg\nhttps://example.com/photo-2.jpg"}
-          className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 font-mono text-xs"
+          className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 font-mono text-xs text-stone-900"
         />
       </label>
 
@@ -584,12 +584,12 @@ function PostEditor({
           value={draft.video_url ?? ""}
           onChange={(e) => setDraft({ ...draft, video_url: e.target.value })}
           placeholder="https://youtube.com/shorts/xxxx 또는 https://example.com/video.mp4"
-          className="mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
         />
       </label>
 
       {draft.profile_image_url?.trim() ? (
-        <div className="mt-3 rounded-[12px] border border-stone-200/80 bg-(--bv-surface-2) p-3">
+        <div className="mt-3 rounded-[12px] border border-stone-200/80 bg-stone-50 p-3">
           <p className="mb-2 text-[11px] font-medium text-stone-500">主圖預覽 / 대표 이미지 미리보기</p>
           <div className="relative aspect-video w-full max-w-[200px] overflow-hidden rounded-lg bg-stone-200">
             <Image src={draft.profile_image_url} alt="preview" fill className="object-cover" sizes="200px" unoptimized />

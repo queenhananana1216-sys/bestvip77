@@ -21,6 +21,13 @@ export default function RegisterPage() {
   const [msg, setMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const fieldTextStyle = {
+    color: "#111827",
+    WebkitTextFillColor: "#111827",
+    caretColor: "#111827",
+    opacity: 1,
+  } as const;
+
   async function isPhoneAvailable(nextCountry: CarrierCountry, nextPhone: string) {
     const res = await fetch("/api/register/phone-availability", {
       method: "POST",
@@ -195,7 +202,8 @@ export default function RegisterPage() {
             <select
               value={carrier}
               onChange={(e) => setCarrier(e.target.value)}
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] outline-none transition-all focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+              className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+              style={fieldTextStyle}
             >
               {carrierOptions.map((c) => (
                 <option key={c.value} value={c.value}>
@@ -216,7 +224,8 @@ export default function RegisterPage() {
                 placeholder="必填"
                 value={displayNameZh}
                 onChange={(e) => setDisplayNameZh(e.target.value)}
-                className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+                className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+                style={fieldTextStyle}
               />
             </div>
             <div className="space-y-1.5">
@@ -227,7 +236,8 @@ export default function RegisterPage() {
                 placeholder="선택사항"
                 value={displayNameKo}
                 onChange={(e) => setDisplayNameKo(e.target.value)}
-                className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+                className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+                style={fieldTextStyle}
               />
             </div>
           </div>
@@ -242,7 +252,8 @@ export default function RegisterPage() {
               placeholder="user@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+              className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+              style={fieldTextStyle}
             />
           </div>
 
@@ -256,7 +267,8 @@ export default function RegisterPage() {
               placeholder={phonePlaceholder(country)}
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+              className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+              style={fieldTextStyle}
             />
           </div>
 
@@ -270,7 +282,8 @@ export default function RegisterPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+              className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+              style={fieldTextStyle}
             />
           </div>
 
