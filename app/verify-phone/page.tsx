@@ -6,6 +6,7 @@ import { type CarrierCountry } from "@/lib/register/carriers";
 import {
   clearPendingPhone,
   explainPhoneAuthError,
+  isDuplicatePhoneError,
   normalizePhoneNumber,
   phonePlaceholder,
   readPendingPhone,
@@ -35,6 +36,37 @@ export default function VerifyPhonePage() {
   const [err, setErr] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
 
+  const requestOtpGuard = useCallback(async (nextCountry: CarrierCountry, nextPhone: string) => {
+    const res = await fetch("/api/register/phone-otp-guard", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ country: nextCountry, phone: nextPhone }),
+    });
+    const payload = (await res.json().catch(() => ({}))) as {
+      ok?: boolean;
+      error?: string;
+      retryAfterSec?: number;
+    };
+    return { ok: res.ok, payload };
+  }, []);
+
+  function explainOtpGuardError(errorCode?: string, retryAfterSec?: number) {
+    if (errorCode === "duplicate_phone") {
+      return "此手機號碼已被使用，請改用其他號碼。/ 이미 가입에 사용된 휴대폰 번호입니다.";
+    }
+    if (errorCode === "suspicious_phone_pattern") {
+      return "테스트용으로 보이는 번호 패턴은 사용할 수 없습니다. 실제 수신 가능한 번호를 입력해 주세요.";
+    }
+    if (errorCode === "otp_cooldown") {
+      const wait = Math.max(1, retryAfterSec ?? 60);
+      return `請在 ${wait} 秒後再重試。/ ${wait}초 후 다시 시도해 주세요.`;
+    }
+    if (errorCode === "otp_rate_limited_phone" || errorCode === "otp_rate_limited_ip") {
+      return "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.";
+    }
+    return "驗證碼 요청을 처리할 수 없습니다. 잠시 후 다시 시도해 주세요.";
+  }
+
   const requestOtp = useCallback(
     async (rawPhone?: string, rawCountry?: CarrierCountry) => {
       const nextCountry = rawCountry ?? country;
@@ -51,6 +83,12 @@ export default function VerifyPhonePage() {
 
       setSending(true);
       try {
+        const guard = await requestOtpGuard(nextCountry, nextPhone);
+        if (!guard.ok) {
+          setErr(explainOtpGuardError(guard.payload.error, guard.payload.retryAfterSec));
+          return false;
+        }
+
         const sb = createBrowserClient();
         const { error } = await sb.auth.updateUser({ phone: normalizedPhone });
         if (error) {
@@ -67,7 +105,7 @@ export default function VerifyPhonePage() {
         setSending(false);
       }
     },
-    [country, phone],
+    [country, phone, requestOtpGuard],
   );
 
   useEffect(() => {
@@ -89,7 +127,7 @@ export default function VerifyPhonePage() {
 
       if (user.phone_confirmed_at) {
         clearPendingPhone();
-        router.replace("/pending-approval");
+        router.replace("/");
         router.refresh();
         return;
       }
@@ -107,6 +145,13 @@ export default function VerifyPhonePage() {
         const normalizedPhone = normalizePhoneNumber(nextCountry, rememberedPhone);
         router.replace("/verify-phone");
         if (!normalizedPhone) return;
+
+        const guard = await requestOtpGuard(nextCountry, rememberedPhone);
+        if (!active) return;
+        if (!guard.ok) {
+          setErr(explainOtpGuardError(guard.payload.error, guard.payload.retryAfterSec));
+          return;
+        }
 
         setSending(true);
         const { error: otpError } = await sb.auth.updateUser({ phone: normalizedPhone });
@@ -130,7 +175,7 @@ export default function VerifyPhonePage() {
     return () => {
       active = false;
     };
-  }, [router]);
+  }, [requestOtpGuard, router]);
 
   async function onVerify() {
     const normalizedPhone = normalizePhoneNumber(country, phone);
@@ -166,11 +211,16 @@ export default function VerifyPhonePage() {
         p_phone_e164: normalizedPhone,
       });
       if (syncError) {
-        console.warn("[bestvip77] sync own phone:", syncError.message);
+        if (isDuplicatePhoneError(syncError.message)) {
+          setErr("此手機號碼已被使用，請改用其他號碼。/ 이미 가입에 사용된 휴대폰 번호입니다.");
+          return;
+        }
+        setErr("手機資料同步失敗，請稍後再試。/ 휴대폰 정보 동기화에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+        return;
       }
 
       clearPendingPhone();
-      router.push("/pending-approval");
+      router.push("/");
       router.refresh();
     } finally {
       setVerifying(false);
@@ -189,8 +239,8 @@ export default function VerifyPhonePage() {
     <div className="flex min-h-dvh items-center justify-center bg-neutral-100 px-4 py-10">
       <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-xl ring-1 ring-black/5">
         <h1 className="text-xl font-bold text-neutral-900">手機驗證</h1>
-        <p className="mt-1 text-sm text-neutral-600">請用可實際收取簡訊的號碼完成驗證，之後才會進入審核流程。</p>
-        <p className="mt-1 text-xs text-neutral-400">실제로 수신 가능한 번호로 SMS 인증을 마쳐야 승인 절차로 넘어갑니다.</p>
+        <p className="mt-1 text-sm text-neutral-600">請用可實際收取簡訊的號碼完成驗證，完成後可直接使用網站。</p>
+        <p className="mt-1 text-xs text-neutral-400">실제로 수신 가능한 번호로 SMS 인증을 완료하면 바로 사이트를 이용할 수 있습니다.</p>
 
         <div className="mt-4 rounded-xl bg-neutral-50 px-3 py-2 text-xs text-neutral-600">
           <p>申請地區 / 가입 지역: {country === "KR" ? "韓國 / 한국" : "中國 / 중국"}</p>

@@ -21,6 +21,17 @@ export default function RegisterPage() {
   const [msg, setMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  async function isPhoneAvailable(nextCountry: CarrierCountry, nextPhone: string) {
+    const res = await fetch("/api/register/phone-availability", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ country: nextCountry, phone: nextPhone }),
+    });
+    if (!res.ok) return true;
+    const data = (await res.json()) as { available?: boolean };
+    return data.available !== false;
+  }
+
   const carrierOptions = useMemo(() => carriersForCountry(country), [country]);
 
   async function ensureProfileRow(
@@ -70,6 +81,12 @@ export default function RegisterPage() {
             ? "請正確輸入韓國手機號碼，例如 01012345678。/ 한국 휴대폰 번호를 다시 확인해 주세요."
             : "請正確輸入中國手機號碼，例如 13800138000。/ 중국 휴대폰 번호를 다시 확인해 주세요.",
         );
+        return;
+      }
+
+      const available = await isPhoneAvailable(country, phone);
+      if (!available) {
+        setErr("此手機號碼已被使用，請改用其他號碼。/ 이미 가입에 사용된 휴대폰 번호입니다.");
         return;
       }
 
@@ -124,7 +141,7 @@ export default function RegisterPage() {
         return;
       }
 
-      setMsg("申請已送出，完成 Email 驗證與手機驗證後會進入審核頁面。/ 이메일 인증과 휴대폰 인증을 마치면 승인 대기 화면으로 이동합니다.");
+      setMsg("申請已送出，完成 Email 驗證與手機驗證後可直接使用網站。/ 이메일 인증과 휴대폰 인증을 마치면 바로 사이트를 이용할 수 있습니다.");
     } finally {
       setLoading(false);
     }

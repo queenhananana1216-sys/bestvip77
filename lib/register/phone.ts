@@ -6,6 +6,21 @@ function digitsOnly(value: string) {
   return value.replace(/\D/g, "");
 }
 
+function isTrivialPattern(digits: string) {
+  if (!digits) return true;
+  if (/^(\d)\1+$/.test(digits)) return true; // 00000000, 11111111
+  if ("01234567890".includes(digits)) return true; // 12345678
+  if ("09876543210".includes(digits)) return true; // 98765432
+  return false;
+}
+
+function hasSuspiciousTailPattern(e164: string) {
+  const digits = digitsOnly(e164);
+  if (digits.length < 8) return false;
+  const tail8 = digits.slice(-8);
+  return isTrivialPattern(tail8);
+}
+
 function normalizeKrPhone(input: string) {
   const digits = digitsOnly(input);
   if (!digits) return null;
@@ -55,14 +70,7 @@ export function phonePlaceholder(country: CarrierCountry) {
 export function explainPhoneAuthError(message: string) {
   const lower = message.toLowerCase();
 
-  if (
-    lower.includes("duplicate") ||
-    lower.includes("already been taken") ||
-    lower.includes("already exists") ||
-    lower.includes("unique") ||
-    lower.includes("already registered") ||
-    lower.includes("already in use")
-  ) {
+  if (isDuplicatePhoneError(message)) {
     return "此手機號碼已被使用，請改用其他號碼。/ 이미 가입에 사용된 휴대폰 번호입니다.";
   }
 
@@ -84,6 +92,22 @@ export function explainPhoneAuthError(message: string) {
   }
 
   return message;
+}
+
+export function isDuplicatePhoneError(message: string) {
+  const lower = message.toLowerCase();
+  return (
+    lower.includes("duplicate") ||
+    lower.includes("already been taken") ||
+    lower.includes("already exists") ||
+    lower.includes("unique") ||
+    lower.includes("already registered") ||
+    lower.includes("already in use")
+  );
+}
+
+export function isSuspiciousPhonePattern(e164: string) {
+  return hasSuspiciousTailPattern(e164);
 }
 
 export function rememberPendingPhone(phone: string) {
