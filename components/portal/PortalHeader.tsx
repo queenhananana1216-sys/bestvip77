@@ -67,9 +67,11 @@ export function PortalHeader({ content, initialUser, posts }: Props) {
               {initialUser.isAdmin ? (
                 <Link
                   href="/admin"
-                  className="hidden sm:block rounded-xl border border-white/10 bg-white/5 px-3.5 py-1.5 text-zinc-300 backdrop-blur-md transition-all duration-200 hover:border-[#FFD700]/30 hover:bg-white/10 hover:text-white hover:shadow-[0_0_12px_rgba(255,215,0,0.15)]"
+                  className="shrink-0 rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-[11px] font-semibold text-zinc-200 backdrop-blur-md transition-all duration-200 hover:border-[#FFD700]/30 hover:bg-white/10 hover:text-white hover:shadow-[0_0_12px_rgba(255,215,0,0.15)] sm:px-3.5 sm:text-[13px] sm:font-medium"
+                  title="管理後台"
                 >
-                  管理後台
+                  <span className="sm:hidden">後台</span>
+                  <span className="hidden sm:inline">管理後台</span>
                 </Link>
               ) : null}
               <span
