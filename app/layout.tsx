@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, Noto_Sans_KR, Noto_Sans_TC } from "next/font/google";
 import { SessionActivityPing } from "@/components/auth/SessionActivityPing";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const noto = Noto_Sans_TC({
@@ -44,6 +45,7 @@ export default function RootLayout({
       >
         <SessionActivityPing />
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
