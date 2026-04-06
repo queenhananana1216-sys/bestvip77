@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type DragEvent, type ReactNode } from "react";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { AdminMembersPanel } from "@/components/admin/AdminMembersPanel";
 import {
@@ -462,10 +462,14 @@ function PostEditor({
   const [draft, setDraft] = useState(row);
   const [imageBusy, setImageBusy] = useState(false);
   const [imageMsg, setImageMsg] = useState<string | null>(null);
+  const [profileDropActive, setProfileDropActive] = useState(false);
+  const [galleryDropActive, setGalleryDropActive] = useState(false);
   const draftPost = isDraftPostId(row.id);
   useEffect(() => {
     setDraft(row);
     setImageMsg(null);
+    setProfileDropActive(false);
+    setGalleryDropActive(false);
   }, [row]);
   const galleryStr = draft.gallery_image_urls.join("\n");
 
@@ -504,6 +508,18 @@ function PostEditor({
     } finally {
       setImageBusy(false);
     }
+  }
+
+  function handleProfileDrop(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    setProfileDropActive(false);
+    void applyProfileImage(event.dataTransfer.files);
+  }
+
+  function handleGalleryDrop(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    setGalleryDropActive(false);
+    void applyGalleryImages(event.dataTransfer.files);
   }
 
   return (
@@ -599,6 +615,23 @@ function PostEditor({
               </button>
             ) : null}
           </div>
+          <div
+            onDragOver={(event) => {
+              event.preventDefault();
+              setProfileDropActive(true);
+            }}
+            onDragLeave={() => setProfileDropActive(false)}
+            onDrop={handleProfileDrop}
+            className={`mt-2 rounded-xl border border-dashed px-3 py-4 text-center text-xs transition ${
+              profileDropActive
+                ? "border-amber-300 bg-amber-500/15 text-amber-50"
+                : "border-white/15 bg-white/3 text-stone-300"
+            }`}
+          >
+            여기로 로컬 사진 파일을 끌어다 놓으세요.
+            <br />
+            拖曳本機照片到這裡作為代表圖片
+          </div>
         </label>
         <label className="flex items-center gap-2 text-xs font-medium text-stone-300 sm:pt-5">
           <input
@@ -656,6 +689,23 @@ function PostEditor({
               갤러리 비우기
             </button>
           ) : null}
+        </div>
+        <div
+          onDragOver={(event) => {
+            event.preventDefault();
+            setGalleryDropActive(true);
+          }}
+          onDragLeave={() => setGalleryDropActive(false)}
+          onDrop={handleGalleryDrop}
+          className={`mt-2 rounded-xl border border-dashed px-3 py-4 text-center text-xs transition ${
+            galleryDropActive
+              ? "border-amber-300 bg-amber-500/15 text-amber-50"
+              : "border-white/15 bg-white/3 text-stone-300"
+          }`}
+        >
+          여기로 로컬 사진 파일 여러 장을 끌어다 놓으세요.
+          <br />
+          拖曳本機照片到這裡加入圖片集
         </div>
       </label>
 
