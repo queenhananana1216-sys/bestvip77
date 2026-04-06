@@ -89,13 +89,13 @@ export function validateMemberLoginId(value: string) {
   if (!normalized) {
     return {
       ok: false as const,
-      error: "아이디를 입력해 주세요. (영문 소문자/숫자, 4~30자)",
+      error: "아이디를 입력해 주세요. / 請輸入ID。 (영문 소문자/숫자, 4~30자)",
     };
   }
   if (isEmailLike(normalized)) {
     return {
       ok: false as const,
-      error: "회원가입은 이메일이 아닌 아이디로 진행해 주세요.",
+      error: "이메일 주소 대신 아이디를 입력해 주세요. / 請輸入ID，不要輸入電子郵件地址。",
     };
   }
   if (isReservedAdminUsername(normalized) || isReservedAdminEmail(normalized) || isAdminEmailDomain(normalized)) {
