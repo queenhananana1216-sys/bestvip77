@@ -2,31 +2,23 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, type FormEvent } from "react";
-import { isAdminEmailDomain, isReservedAdminEmail, isReservedAdminUsername } from "@/lib/admin/usernames";
+import { useState, type FormEvent } from "react";
+import { normalizeLoginIdentifierInput, validateMemberLoginId } from "@/lib/admin/usernames";
 import { createBrowserClient } from "@/lib/supabase/client";
-import { type CarrierCountry, carriersForCountry } from "@/lib/register/carriers";
+import { type CarrierCountry } from "@/lib/register/carriers";
 import { normalizePhoneNumber, phonePlaceholder, rememberPendingPhone } from "@/lib/register/phone";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [displayNameZh, setDisplayNameZh] = useState("");
   const [displayNameKo, setDisplayNameKo] = useState("");
   const [country, setCountry] = useState<CarrierCountry>("KR");
-  const [carrier, setCarrier] = useState<string>(carriersForCountry("KR")[0].value);
   const [err, setErr] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const fieldTextStyle = {
-    color: "#111827",
-    WebkitTextFillColor: "#111827",
-    caretColor: "#111827",
-    opacity: 1,
-  } as const;
 
   async function isPhoneAvailable(nextCountry: CarrierCountry, nextPhone: string) {
     const res = await fetch("/api/register/phone-availability", {
@@ -39,13 +31,23 @@ export default function RegisterPage() {
     return data.available !== false;
   }
 
-  const carrierOptions = useMemo(() => carriersForCountry(country), [country]);
+  async function isLoginIdAvailable(nextLoginId: string) {
+    const res = await fetch("/api/register/id-availability", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ loginId: nextLoginId }),
+    });
+    if (!res.ok) {
+      return { available: false, message: "아이디 중복 확인에 실패했습니다. 잠시 후 다시 시도해 주세요." };
+    }
+    const data = (await res.json()) as { available?: boolean };
+    return { available: data.available === true, message: "이미 사용 중인 아이디입니다." };
+  }
 
   async function ensureProfileRow(
     userId: string,
     userEmail: string | undefined,
     cc: CarrierCountry,
-    carrierValue: string,
     nextDisplayNameZh: string,
     nextDisplayNameKo: string,
     nextDisplayNameEn: string,
@@ -55,7 +57,7 @@ export default function RegisterPage() {
       user_id: userId,
       email: userEmail ?? null,
       carrier_country: cc,
-      carrier_label: carrierValue,
+      carrier_label: null,
       display_name_zh: nextDisplayNameZh,
       display_name_ko: nextDisplayNameKo || null,
       display_name_en: nextDisplayNameEn || null,
@@ -73,14 +75,16 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const sb = createBrowserClient();
-      const origin = window.location.origin;
-      const valid = carrierOptions.some((c) => c.value === carrier);
-      const carrierValue = valid ? carrier : (carrierOptions[0]?.value ?? "MVNO_KR");
       const normalizedPhone = normalizePhoneNumber(country, phone);
       const nextDisplayNameZh = displayNameZh.trim();
       const nextDisplayNameKo = displayNameKo.trim();
       const nextDisplayNameEn = "";
-      const nextEmail = email.trim();
+      const validatedLoginId = validateMemberLoginId(normalizeLoginIdentifierInput(loginId));
+
+      if (!validatedLoginId.ok) {
+        setErr(validatedLoginId.error);
+        return;
+      }
 
       if (!normalizedPhone) {
         setErr(
@@ -102,61 +106,66 @@ export default function RegisterPage() {
         return;
       }
 
-      if (isReservedAdminUsername(nextEmail) || isReservedAdminEmail(nextEmail) || isAdminEmailDomain(nextEmail)) {
-        setErr("此帳號識別字僅供管理員使用。/ 이 계정 식별자는 관리자 전용입니다.");
+      const idAvailability = await isLoginIdAvailable(validatedLoginId.loginId);
+      if (!idAvailability.available) {
+        setErr(idAvailability.message);
         return;
       }
 
-      const { data, error } = await sb.auth.signUp({
-        email: nextEmail,
-        password,
-        options: {
-          emailRedirectTo: `${origin}/auth/callback?next=/verify-phone`,
-          data: {
-            bestvip77: "true",
-            carrier_country: country,
-            carrier_label: carrierValue,
-            display_name_zh: nextDisplayNameZh,
-            display_name_ko: nextDisplayNameKo,
-            display_name_en: nextDisplayNameEn,
-          },
-        },
+      const createRes = await fetch("/api/register/create-member", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          loginId: validatedLoginId.loginId,
+          password,
+          country,
+          displayNameZh: nextDisplayNameZh,
+          displayNameKo: nextDisplayNameKo,
+        }),
       });
-      if (error) {
-        setErr(error.message);
+      const createPayload = (await createRes.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+        message?: string;
+      };
+      if (!createRes.ok || !createPayload.ok) {
+        setErr(createPayload.message ?? "회원가입 처리에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+        return;
+      }
+
+      const { data, error } = await sb.auth.signInWithPassword({
+        email: validatedLoginId.email,
+        password,
+      });
+      if (error || !data.user || !data.session) {
+        setErr(error?.message ?? "가입 직후 로그인에 실패했습니다. 로그인 화면에서 다시 시도해 주세요.");
         return;
       }
 
       rememberPendingPhone(normalizedPhone);
 
-      const uid = data.user?.id;
-      if (uid && data.session) {
+      const uid = data.user.id;
+      if (uid) {
         await ensureProfileRow(
           uid,
-          data.user?.email ?? nextEmail,
+          data.user.email ?? validatedLoginId.email,
           country,
-          carrierValue,
           nextDisplayNameZh,
           nextDisplayNameKo,
           nextDisplayNameEn,
         );
       }
 
-      if (data.session) {
-        router.push("/verify-phone?auto=1");
-        router.refresh();
-        return;
-      }
-
-      setMsg("申請已送出，完成 Email 驗證與手機驗證後可直接使用網站。/ 이메일 인증과 휴대폰 인증을 마치면 바로 사이트를 이용할 수 있습니다.");
+      router.push("/verify-phone?auto=1");
+      router.refresh();
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-[#FAFAFA] px-4 py-12 sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-[480px] rounded-3xl bg-white/80 p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl border border-white/20">
+    <div className="bv-light-ui flex min-h-dvh flex-col items-center justify-center bg-[#FAFAFA] px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[480px] rounded-3xl border border-white/20 bg-white/80 p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Create an Account</h1>
           <p className="mt-2 text-[13px] text-zinc-500">註冊會員以開始使用 / 회원가입을 진행해주세요</p>
@@ -175,7 +184,6 @@ export default function RegisterPage() {
                   checked={country === "KR"}
                   onChange={() => {
                     setCountry("KR");
-                    setCarrier(carriersForCountry("KR")[0].value);
                   }}
                 />
                 韓國 / 한국
@@ -188,29 +196,11 @@ export default function RegisterPage() {
                   checked={country === "CN"}
                   onChange={() => {
                     setCountry("CN");
-                    setCarrier(carriersForCountry("CN")[0].value);
                   }}
                 />
                 中國 / 중국
               </label>
             </div>
-          </div>
-
-          {/* Carrier */}
-          <div className="space-y-1.5">
-            <label className="text-[13px] font-medium text-zinc-700">Carrier / 통신사</label>
-            <select
-              value={carrier}
-              onChange={(e) => setCarrier(e.target.value)}
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
-              style={fieldTextStyle}
-            >
-              {carrierOptions.map((c) => (
-                <option key={c.value} value={c.value}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
           </div>
 
           {/* Names */}
@@ -224,8 +214,7 @@ export default function RegisterPage() {
                 placeholder="必填"
                 value={displayNameZh}
                 onChange={(e) => setDisplayNameZh(e.target.value)}
-                className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
-                style={fieldTextStyle}
+                className="bv-light-field w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
               />
             </div>
             <div className="space-y-1.5">
@@ -236,24 +225,30 @@ export default function RegisterPage() {
                 placeholder="선택사항"
                 value={displayNameKo}
                 onChange={(e) => setDisplayNameKo(e.target.value)}
-                className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
-                style={fieldTextStyle}
+                className="bv-light-field w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
               />
             </div>
           </div>
 
           {/* Contact Info */}
           <div className="space-y-1.5">
-            <label className="text-[13px] font-medium text-zinc-700">Email</label>
+            <label className="text-[13px] font-medium text-zinc-700">ID / 아이디</label>
             <input
-              type="email"
+              type="text"
               required
-              autoComplete="email"
-              placeholder="user@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
-              style={fieldTextStyle}
+              autoComplete="username"
+              placeholder="영문 소문자/숫자, 4~30자"
+              value={loginId}
+              onChange={(e) => setLoginId(e.target.value)}
+              onPaste={(e) => {
+                const t = e.clipboardData.getData("text/plain");
+                if (!t) return;
+                e.preventDefault();
+                setLoginId(normalizeLoginIdentifierInput(t));
+              }}
+              spellCheck={false}
+              autoCapitalize="off"
+              className="bv-light-field w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
             />
           </div>
 
@@ -267,8 +262,7 @@ export default function RegisterPage() {
               placeholder={phonePlaceholder(country)}
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
-              style={fieldTextStyle}
+              className="bv-light-field w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
             />
           </div>
 
@@ -282,8 +276,7 @@ export default function RegisterPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
-              style={fieldTextStyle}
+              className="bv-light-field w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
             />
           </div>
 
