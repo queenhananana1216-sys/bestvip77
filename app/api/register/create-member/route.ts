@@ -34,16 +34,19 @@ export async function POST(request: Request) {
     const country = body.country === "CN" ? "CN" : "KR";
     const serviceClient = createServiceRoleClient();
 
-    const { data: existingAuthUser, error: existingAuthError } = await serviceClient
-      .schema("auth")
-      .from("users")
-      .select("id")
-      .eq("email", validated.email)
-      .maybeSingle();
-    if (existingAuthError) {
-      return NextResponse.json({ error: existingAuthError.message }, { status: 500 });
+    // auth.schema 직접 조회 대신 admin.listUsers + filter로 중복 체크
+    // (auth 스키마 직접 접근은 PGRST106 오류 발생)
+    const { data: userList, error: listError } = await serviceClient.auth.admin.listUsers({
+      page: 1,
+      perPage: 1000,
+    });
+
+    if (listError) {
+      return NextResponse.json({ error: listError.message }, { status: 500 });
     }
-    if (existingAuthUser) {
+
+    const existingUser = userList?.users?.find((u) => u.email === validated.email);
+    if (existingUser) {
       return NextResponse.json({ error: "duplicate_login_id", message: "이미 사용 중인 아이디입니다." }, { status: 409 });
     }
 
