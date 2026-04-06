@@ -114,10 +114,14 @@ export async function POST(request: Request) {
       ) {
         await ensureOtpTable(serviceClient);
         // 테이블 생성 후 바로 insert 시도하고 통과
-        await serviceClient.from("bestvip77_phone_otp_requests").insert({
-          phone_e164: normalizedPhone,
-          ip_hash: clientIpHash,
-        }).then(() => null).catch(() => null);
+        try {
+          await serviceClient.from("bestvip77_phone_otp_requests").insert({
+            phone_e164: normalizedPhone,
+            ip_hash: clientIpHash,
+          });
+        } catch {
+          // 테이블 생성 직후 insert 실패는 무시
+        }
         return NextResponse.json({ ok: true, phone: normalizedPhone });
       }
       return NextResponse.json({ error: phoneCountError.message }, { status: 500 });
