@@ -54,6 +54,46 @@ function normalizePostDraft(row: PortalPostRow) {
   };
 }
 
+async function readFileAsDataUrl(file: File) {
+  return await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ""));
+    reader.onerror = () => reject(new Error("이미지 파일을 읽지 못했습니다."));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function optimizeImageFile(file: File, maxEdge = 1600, quality = 0.82) {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("이미지 파일만 선택할 수 있습니다.");
+  }
+
+  const source = await readFileAsDataUrl(file);
+  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new window.Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("이미지를 불러오지 못했습니다."));
+    img.src = source;
+  });
+
+  const largestEdge = Math.max(image.width, image.height);
+  const scale = largestEdge > maxEdge ? maxEdge / largestEdge : 1;
+  const width = Math.max(1, Math.round(image.width * scale));
+  const height = Math.max(1, Math.round(image.height * scale));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  if (!context) {
+    throw new Error("이미지 변환을 위한 캔버스를 준비하지 못했습니다.");
+  }
+
+  context.drawImage(image, 0, 0, width, height);
+  const mimeType = file.type === "image/png" ? "image/png" : "image/jpeg";
+  return canvas.toDataURL(mimeType, mimeType === "image/png" ? undefined : quality);
+}
+
 export default function AdminClient({ initialContent, initialPosts }: Props) {
   const router = useRouter();
   const [tab, setTab] = useState<"site" | "posts" | "members">("site");
@@ -420,11 +460,51 @@ function PostEditor({
   onDelete: (id: string) => void | Promise<void>;
 }) {
   const [draft, setDraft] = useState(row);
+  const [imageBusy, setImageBusy] = useState(false);
+  const [imageMsg, setImageMsg] = useState<string | null>(null);
   const draftPost = isDraftPostId(row.id);
   useEffect(() => {
     setDraft(row);
+    setImageMsg(null);
   }, [row]);
   const galleryStr = draft.gallery_image_urls.join("\n");
+
+  async function applyProfileImage(fileList: FileList | null) {
+    const file = fileList?.[0];
+    if (!file) return;
+
+    setImageBusy(true);
+    setImageMsg(null);
+    try {
+      const dataUrl = await optimizeImageFile(file);
+      setDraft((current) => ({ ...current, profile_image_url: dataUrl }));
+      setImageMsg("대표 이미지를 불러왔습니다. 저장하면 반영됩니다.");
+    } catch (error) {
+      setImageMsg(error instanceof Error ? error.message : "대표 이미지를 처리하지 못했습니다.");
+    } finally {
+      setImageBusy(false);
+    }
+  }
+
+  async function applyGalleryImages(fileList: FileList | null) {
+    const files = Array.from(fileList ?? []);
+    if (files.length === 0) return;
+
+    setImageBusy(true);
+    setImageMsg(null);
+    try {
+      const nextUrls = await Promise.all(files.map((file) => optimizeImageFile(file, 1400, 0.8)));
+      setDraft((current) => ({
+        ...current,
+        gallery_image_urls: [...current.gallery_image_urls, ...nextUrls],
+      }));
+      setImageMsg("갤러리 이미지를 추가했습니다. 저장하면 반영됩니다.");
+    } catch (error) {
+      setImageMsg(error instanceof Error ? error.message : "갤러리 이미지를 처리하지 못했습니다.");
+    } finally {
+      setImageBusy(false);
+    }
+  }
 
   return (
     <li
@@ -499,6 +579,26 @@ function PostEditor({
             placeholder="https://example.com/shop-photo.jpg"
             className="bv-dark-field mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm text-stone-100 placeholder:text-stone-400"
           />
+          <div className="mt-2 flex flex-wrap gap-2">
+            <label className="cursor-pointer rounded-xl border border-white/12 bg-white/4 px-3 py-2 text-xs text-stone-100 transition hover:bg-white/8">
+              휴대폰/컴퓨터 사진 선택
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => void applyProfileImage(e.target.files)}
+                className="sr-only"
+              />
+            </label>
+            {draft.profile_image_url ? (
+              <button
+                type="button"
+                onClick={() => setDraft((current) => ({ ...current, profile_image_url: "" }))}
+                className="rounded-xl border border-red-200/60 bg-red-500/10 px-3 py-2 text-xs text-red-100 transition hover:bg-red-500/20"
+              >
+                대표 이미지 제거
+              </button>
+            ) : null}
+          </div>
         </label>
         <label className="flex items-center gap-2 text-xs font-medium text-stone-300 sm:pt-5">
           <input
@@ -536,6 +636,27 @@ function PostEditor({
           placeholder={"https://example.com/photo-1.jpg\nhttps://example.com/photo-2.jpg"}
           className="bv-dark-field mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 font-mono text-xs text-stone-100 placeholder:text-stone-400"
         />
+        <div className="mt-2 flex flex-wrap gap-2">
+          <label className="cursor-pointer rounded-xl border border-white/12 bg-white/4 px-3 py-2 text-xs text-stone-100 transition hover:bg-white/8">
+            휴대폰/컴퓨터 사진 여러 장 선택
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => void applyGalleryImages(e.target.files)}
+              className="sr-only"
+            />
+          </label>
+          {draft.gallery_image_urls.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => setDraft((current) => ({ ...current, gallery_image_urls: [] }))}
+              className="rounded-xl border border-red-200/60 bg-red-500/10 px-3 py-2 text-xs text-red-100 transition hover:bg-red-500/20"
+            >
+              갤러리 비우기
+            </button>
+          ) : null}
+        </div>
       </label>
 
       <label className="mt-3 block text-xs font-medium text-stone-300">
@@ -560,18 +681,24 @@ function PostEditor({
         </div>
       ) : null}
 
+      {imageMsg ? (
+        <p className="mt-3 rounded-[12px] border border-sky-200/40 bg-sky-500/10 px-3 py-2 text-xs text-sky-100">
+          {imageMsg}
+        </p>
+      ) : null}
+
       <div className="mt-3 flex flex-wrap gap-2">
         <button
           type="button"
-          disabled={busy}
+          disabled={busy || imageBusy}
           onClick={() => void onSave(draft)}
           className="rounded-xl bg-stone-950 px-3 py-2 text-sm font-medium text-white transition hover:bg-stone-800 disabled:opacity-50"
         >
-          {draftPost ? "發布卡片 / 공개 저장" : "儲存卡片 / 저장"}
+          {imageBusy ? "이미지 처리 중…" : draftPost ? "發布卡片 / 공개 저장" : "儲存卡片 / 저장"}
         </button>
         <button
           type="button"
-          disabled={busy}
+          disabled={busy || imageBusy}
           onClick={() => void onDelete(draft.id)}
           className="rounded-xl border border-red-200 bg-white px-3 py-2 text-sm text-red-700 transition hover:bg-red-50 disabled:opacity-50"
         >
