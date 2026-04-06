@@ -6,6 +6,9 @@ import { isPortalAdminEmail } from "@/lib/admin/portal-admin";
 const ANON_OK = ["/login", "/register", "/auth/callback"] as const;
 const PHONE_VERIFY_OK = ["/verify-phone", "/auth/callback"] as const;
 
+/** API 라우트는 미들웨어 인증 체크 제외 (각 API에서 자체 인증 처리) */
+const API_PATHS = ["/api/"] as const;
+
 function matches(pathname: string, prefixes: readonly string[]): boolean {
   return prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
@@ -44,6 +47,11 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
+
+  // API 경로는 미들웨어 리다이렉트 없이 통과
+  if (matches(pathname, API_PATHS)) {
+    return response;
+  }
 
   const redirectTo = (path: string) => {
     const dest = NextResponse.redirect(new URL(path, request.url));
