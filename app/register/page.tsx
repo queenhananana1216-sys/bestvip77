@@ -11,7 +11,6 @@ import { normalizePhoneNumberAny, rememberPendingPhone } from "@/lib/register/ph
 export default function RegisterPage() {
   const router = useRouter();
   const [loginId, setLoginId] = useState("");
-  const [name, setName] = useState("");
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
@@ -61,7 +60,6 @@ export default function RegisterPage() {
       const sb = createBrowserClient();
       const normalizedPhone = normalizePhoneNumberAny(phone);
       const validatedLoginId = validateMemberLoginId(normalizeLoginIdentifierInput(loginId));
-      const nextName = name.trim();
       const nextNickname = nickname.trim();
       const nextDisplayNameEn = "";
       const country: CarrierCountry = normalizedPhone?.startsWith("+86") ? "CN" : "KR";
@@ -82,11 +80,6 @@ export default function RegisterPage() {
         return;
       }
 
-      if (!nextName) {
-        setErr("이름을 입력해 주세요.");
-        return;
-      }
-
       if (!nextNickname) {
         setErr("닉네임을 입력해 주세요.");
         return;
@@ -99,7 +92,7 @@ export default function RegisterPage() {
           loginId: validatedLoginId.loginId,
           password,
           country,
-          displayNameZh: nextName,
+          displayNameZh: nextNickname,
           displayNameKo: nextNickname,
         }),
       });
@@ -130,7 +123,7 @@ export default function RegisterPage() {
           uid,
           data.user.email ?? validatedLoginId.email,
           country,
-          nextName,
+          nextNickname,
           nextNickname,
           nextDisplayNameEn,
         );
@@ -173,32 +166,17 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Name / Nickname */}
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <label className="text-[13px] font-medium text-zinc-700">이름</label>
-              <input
-                type="text"
-                required
-                autoComplete="name"
-                placeholder="이름"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="bv-light-field w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[13px] font-medium text-zinc-700">닉네임</label>
-              <input
-                type="text"
-                autoComplete="nickname"
-                required
-                placeholder="닉네임"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-                className="bv-light-field w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
-              />
-            </div>
+          <div className="space-y-1.5">
+            <label className="text-[13px] font-medium text-zinc-700">닉네임 / 暱稱</label>
+            <input
+              type="text"
+              autoComplete="nickname"
+              required
+              placeholder="닉네임을 입력해 주세요 / 請輸入暱稱"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              className="bv-light-field w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+            />
           </div>
 
           <div className="space-y-1.5">

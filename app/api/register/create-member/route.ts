@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
     const displayNameZh = (body.displayNameZh ?? "").trim();
     if (!displayNameZh) {
-      return NextResponse.json({ error: "missing_name", message: "중국어 이름을 입력해 주세요." }, { status: 400 });
+      return NextResponse.json({ error: "missing_nickname", message: "닉네임을 입력해 주세요." }, { status: 400 });
     }
 
     const displayNameKo = (body.displayNameKo ?? "").trim();
