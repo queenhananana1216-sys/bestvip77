@@ -76,26 +76,26 @@ export const defaultPortalContent: PortalSiteContent = {
     items: [],
   },
   telegram: {
-    title: "官方 Telegram",
-    body: "取得最新網址與公告。",
-    ctaLabel: "加入頻道",
-    ctaHref: "https://t.me",
+    title: "",
+    body: "",
+    ctaLabel: "",
+    ctaHref: "",
   },
   line: {
-    title: "官方 LINE",
-    body: "加好友隨時聯繫客服。",
-    ctaLabel: "加入好友",
+    title: "",
+    body: "",
+    ctaLabel: "",
     ctaHref: "",
   },
   adCta: {
-    title: "廣告發布",
-    body: "需要刊登廣告？點擊下方由專人協助。",
-    buttonLabel: "立即聯繫",
-    buttonHref: "https://example.com",
+    title: "",
+    body: "",
+    buttonLabel: "",
+    buttonHref: "",
   },
   feed: {
     title: "合作商家",
-    subtitle: "圖片與介紹可在管理後台「광고 카드」分頁編輯。",
+    subtitle: "",
   },
 };
 

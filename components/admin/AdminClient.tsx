@@ -18,6 +18,42 @@ type Props = {
   initialPosts: PortalPostRow[];
 };
 
+const POST_SELECT =
+  "id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,video_url,sort_order,created_at";
+const DRAFT_PREFIX = "draft:";
+
+function isDraftPostId(id: string) {
+  return id.startsWith(DRAFT_PREFIX);
+}
+
+function createDraftPost(): PortalPostRow {
+  return {
+    id: `${DRAFT_PREFIX}${crypto.randomUUID()}`,
+    title: "",
+    body_text: "",
+    price_info: "",
+    is_pinned: false,
+    profile_image_url: "",
+    gallery_image_urls: [],
+    video_url: "",
+    sort_order: 0,
+    created_at: new Date().toISOString(),
+  };
+}
+
+function normalizePostDraft(row: PortalPostRow) {
+  return {
+    title: row.title.trim(),
+    body_text: row.body_text.trim(),
+    price_info: row.price_info.trim(),
+    is_pinned: row.is_pinned,
+    profile_image_url: row.profile_image_url.trim(),
+    gallery_image_urls: row.gallery_image_urls.map((url) => url.trim()).filter(Boolean),
+    video_url: (row.video_url ?? "").trim(),
+    sort_order: Number.isFinite(row.sort_order) ? row.sort_order : 0,
+  };
+}
+
 export default function AdminClient({ initialContent, initialPosts }: Props) {
   const router = useRouter();
   const [tab, setTab] = useState<"site" | "posts" | "members">("site");
@@ -90,129 +126,49 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
     setJsonText(JSON.stringify(defaultPortalContent, null, 2));
   }
 
-  async function refreshPosts() {
-    const sb = createBrowserClient();
-    const { data, error } = await sb
-      .from("bestvip77_posts")
-      .select(
-        "id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,sort_order,created_at",
-      )
-      .order("is_pinned", { ascending: false })
-      .order("sort_order", { ascending: false })
-      .order("created_at", { ascending: false });
-    if (!error && data) setPosts(data as PortalPostRow[]);
-  }
-
-  async function addPost() {
-    setBusy(true);
+  function addPost() {
     setErr(null);
-    try {
-      const sb = createBrowserClient();
-      const { data, error } = await sb
-        .from("bestvip77_posts")
-        .insert({
-          title: "新標題 / 새 카드",
-          body_text: "",
-          price_info: "",
-          is_pinned: false,
-          profile_image_url: "",
-          gallery_image_urls: [],
-          sort_order: 0,
-        })
-        .select(
-          "id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,sort_order,created_at",
-        )
-        .single();
-      if (error) throw error;
-      setPosts((p) => [data as PortalPostRow, ...p]);
-      setMsg("已新增卡片。/ 게시물을 추가했습니다.");
-    } catch (e: unknown) {
-      setErr(e instanceof Error ? e.message : "新增失敗 / 추가 실패");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function seedDemoPosts() {
-    if (!confirm("插入4筆示範商家資料？現有卡片不受影響。\n데모 업체 4개를 추가합니다. 기존 카드는 영향 없습니다.")) return;
-    setBusy(true);
-    setErr(null);
-    try {
-      const sb = createBrowserClient();
-      const demos = [
-        {
-          title: "金玉滿堂 KTV / 금옥만당 노래방",
-          body_text: "包廂寬敞、音響頂級，適合朋友聚會或商務接待。提供中韓日歌曲庫。\n\n넓은 룸과 최고급 사운드 시스템. 중·한·일 노래 데이터베이스 지원.",
-          price_info: "包廂 ¥288起 / 룸 288위안~",
-          is_pinned: true,
-          profile_image_url: "https://picsum.photos/seed/bv77-ktv/400/400",
-          gallery_image_urls: ["https://picsum.photos/seed/bv77-ktv-1/800/600", "https://picsum.photos/seed/bv77-ktv-2/800/600", "https://picsum.photos/seed/bv77-ktv-3/800/600"],
-          sort_order: 100,
-        },
-        {
-          title: "天上人間 足浴養生 / 천상인간 발마사지",
-          body_text: "結合中醫經絡理論，提供足浴、全身按摩、刮痧拔罐等服務。\n\n중의학 경락 기반 족욕·전신 마사지·부항 서비스.",
-          price_info: "足浴60分 ¥168 / 족욕 60분 168위안",
-          is_pinned: false,
-          profile_image_url: "https://picsum.photos/seed/bv77-spa/400/400",
-          gallery_image_urls: ["https://picsum.photos/seed/bv77-spa-1/800/600", "https://picsum.photos/seed/bv77-spa-2/800/600"],
-          sort_order: 90,
-        },
-        {
-          title: "麗景灣 美容美髮 / 여경만 미용실",
-          body_text: "韓式半永久化妝、日式美甲、燙染護髮一站式服務。\n\n한식 반영구·일본식 네일·펌·염색 원스톱 서비스.",
-          price_info: "剪髮 ¥80 / 커트 80위안",
-          is_pinned: false,
-          profile_image_url: "https://picsum.photos/seed/bv77-salon/400/400",
-          gallery_image_urls: ["https://picsum.photos/seed/bv77-salon-1/800/600", "https://picsum.photos/seed/bv77-salon-2/800/600", "https://picsum.photos/seed/bv77-salon-3/800/600"],
-          sort_order: 80,
-        },
-        {
-          title: "龍門客棧 餐飲 / 용문객잔 중식당",
-          body_text: "正宗川菜、粵菜、東北菜，兼顧韓國人口味。支援外送與包場。\n\n정통 사천·광동·동북 요리. 배달·대관 가능.",
-          price_info: "人均 ¥60-120 / 인당 60~120위안",
-          is_pinned: false,
-          profile_image_url: "https://picsum.photos/seed/bv77-food/400/400",
-          gallery_image_urls: ["https://picsum.photos/seed/bv77-food-1/800/600", "https://picsum.photos/seed/bv77-food-2/800/600"],
-          sort_order: 70,
-        },
-      ];
-      const { data, error } = await sb
-        .from("bestvip77_posts")
-        .insert(demos)
-        .select("id,title,body_text,price_info,is_pinned,profile_image_url,gallery_image_urls,sort_order,created_at");
-      if (error) throw error;
-      setPosts((p) => [...(data as PortalPostRow[]), ...p]);
-      setMsg(`已插入 ${data?.length ?? 0} 筆示範資料。/ 데모 ${data?.length ?? 0}개를 추가했습니다.`);
-      router.refresh();
-    } catch (e: unknown) {
-      setErr(e instanceof Error ? e.message : "插入示範資料失敗 / 데모 삽입 실패");
-    } finally {
-      setBusy(false);
-    }
+    setMsg("已建立未儲存卡片。填好內容後按「儲存卡片」才會正式上線。/ 임시 카드가 생성되었습니다.");
+    setPosts((current) => [createDraftPost(), ...current]);
   }
 
   async function savePost(row: PortalPostRow) {
+    const nextRow = normalizePostDraft(row);
+    if (!nextRow.title) {
+      setErr("請先輸入卡片標題後再儲存。/ 제목을 먼저 입력해 주세요.");
+      setMsg(null);
+      return;
+    }
+
     setBusy(true);
     setErr(null);
     try {
       const sb = createBrowserClient();
-      const { error } = await sb
-        .from("bestvip77_posts")
-        .update({
-          title: row.title,
-          body_text: row.body_text,
-          price_info: row.price_info,
-          is_pinned: row.is_pinned,
-          profile_image_url: row.profile_image_url,
-          gallery_image_urls: row.gallery_image_urls,
-          sort_order: row.sort_order,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", row.id);
-      if (error) throw error;
-      setMsg("已儲存。/ 저장했습니다.");
-      await refreshPosts();
+
+      if (isDraftPostId(row.id)) {
+        const { data, error } = await sb
+          .from("bestvip77_posts")
+          .insert(nextRow)
+          .select(POST_SELECT)
+          .single();
+        if (error) throw error;
+        setPosts((current) => current.map((post) => (post.id === row.id ? (data as PortalPostRow) : post)));
+        setMsg("新卡片已儲存並公開。/ 새 카드가 저장되어 공개되었습니다.");
+      } else {
+        const { data, error } = await sb
+          .from("bestvip77_posts")
+          .update({
+            ...nextRow,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", row.id)
+          .select(POST_SELECT)
+          .single();
+        if (error) throw error;
+        setPosts((current) => current.map((post) => (post.id === row.id ? (data as PortalPostRow) : post)));
+        setMsg("已儲存。/ 저장했습니다.");
+      }
+
       router.refresh();
     } catch (e: unknown) {
       setErr(e instanceof Error ? e.message : "儲存失敗 / 저장 실패");
@@ -222,11 +178,20 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
   }
 
   async function deletePost(id: string) {
+    if (isDraftPostId(id)) {
+      setPosts((current) => current.filter((post) => post.id !== id));
+      setMsg("未儲存卡片已丟棄。/ 임시 카드를 삭제했습니다.");
+      setErr(null);
+      return;
+    }
+
     if (!confirm("確定刪除此卡片與留言嗎？ / 이 게시물과 댓글을 삭제할까요?")) return;
     setBusy(true);
     setErr(null);
     try {
       const sb = createBrowserClient();
+      const { error: commentError } = await sb.from("bestvip77_comments").delete().eq("post_id", id);
+      if (commentError) throw commentError;
       const { error } = await sb.from("bestvip77_posts").delete().eq("id", id);
       if (error) throw error;
       setPosts((p) => p.filter((x) => x.id !== id));
@@ -247,7 +212,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
   }
 
   return (
-    <div className="min-h-dvh pb-16 text-stone-900">
+    <div className="bv-dark-ui min-h-dvh pb-16 text-stone-100">
       <header
         className="sticky top-0 z-20 border-b border-white/6 backdrop-blur-md"
         style={{
@@ -302,21 +267,21 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
 
       <div className="mx-auto max-w-6xl px-4 py-6">
         <section
-          className="rounded-[14px] border border-stone-200/80 bg-white px-5 py-5"
+          className="rounded-[14px] border border-stone-200/80 bg-(--bv-surface) px-5 py-5"
           style={{ boxShadow: "var(--bv-shadow-sm)" }}
         >
           <p
-            className="text-[10px] font-semibold uppercase tracking-[0.24em] text-orange-700/80"
+            className="text-[10px] font-semibold uppercase tracking-[0.24em] text-orange-200/80"
             style={{ fontFamily: "var(--font-dm), sans-serif" }}
           >
             {activeTab.eyebrow}
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
-              <h2 className="text-[22px] font-semibold tracking-[-0.03em] text-stone-900">{activeTab.title}</h2>
-              <p className="mt-2 text-[13px] leading-relaxed text-stone-600">{activeTab.body}</p>
+              <h2 className="text-[22px] font-semibold tracking-[-0.03em] text-stone-50">{activeTab.title}</h2>
+              <p className="mt-2 text-[13px] leading-relaxed text-stone-200">{activeTab.body}</p>
             </div>
-            <div className="rounded-[12px] border border-stone-200/90 bg-stone-50 px-4 py-3 text-[12px] leading-relaxed text-stone-600">
+            <div className="rounded-[12px] border border-stone-200/90 bg-(--bv-surface-2) px-4 py-3 text-[12px] leading-relaxed text-stone-300">
               <p>中文主導，韓文補充。</p>
               <p className="mt-1">퍼블릭 사이트와 같은 톤으로 운영 화면을 정리했습니다.</p>
             </div>
@@ -345,27 +310,27 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
             <AdminMembersPanel />
           ) : tab === "site" ? (
             <section
-              className="space-y-4 rounded-[14px] border border-stone-200/80 bg-white p-5"
+              className="space-y-4 rounded-[14px] border border-stone-200/80 bg-(--bv-surface) p-5"
               style={{ boxShadow: "var(--bv-shadow-sm)" }}
             >
-              <p className="text-sm leading-relaxed text-stone-600">
+              <p className="text-sm leading-relaxed text-stone-200">
                 首頁標題、Telegram、CTA、Banner、feed 區塊文案可在下方 JSON 直接修改。<strong>商家圖片、名稱、介紹</strong>
                 請到「廣告卡片」編輯。
               </p>
-              <p className="text-xs leading-relaxed text-stone-500">
-                한국어 안내: <code className="rounded bg-stone-100 px-1">urlStrip.items</code>는 비상용 백업 링크 줄입니다.
+              <p className="text-xs leading-relaxed text-stone-300">
+                한국어 안내: <code className="rounded bg-white/10 px-1 text-stone-50">urlStrip.items</code>는 비상용 백업 링크 줄입니다.
                 비우면 홈에 보이지 않습니다.
               </p>
               {parsedPreview ? (
-                <p className="text-xs text-emerald-700">JSON 格式正常，可儲存。/ JSON 파싱 OK</p>
+                <p className="text-xs text-emerald-300">JSON 格式正常，可儲存。/ JSON 파싱 OK</p>
               ) : (
-                <p className="text-xs text-red-600">JSON 格式錯誤，無法儲存。/ JSON 파싱 실패</p>
+                <p className="text-xs text-rose-300">JSON 格式錯誤，無法儲存。/ JSON 파싱 실패</p>
               )}
               <textarea
                 value={jsonText}
                 onChange={(e) => setJsonText(e.target.value)}
                 spellCheck={false}
-                className="h-[min(70vh,560px)] w-full rounded-[13px] border border-stone-200/80 bg-stone-50 p-4 font-mono text-sm text-stone-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
+                className="bv-dark-field h-[min(70vh,560px)] w-full rounded-[13px] border border-stone-200/80 bg-(--bv-surface-2) p-4 font-mono text-sm text-stone-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
               />
               <div className="flex flex-wrap gap-2">
                 <button
@@ -379,7 +344,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
                 <button
                   type="button"
                   onClick={resetSiteJson}
-                  className="rounded-xl border border-stone-300 px-4 py-2 text-sm text-stone-700 transition hover:bg-stone-50"
+                  className="rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm text-stone-100 transition hover:bg-white/8"
                 >
                   重設為預設值 / 기본값
                 </button>
@@ -387,29 +352,21 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
             </section>
           ) : (
             <section
-              className="space-y-6 rounded-[14px] border border-stone-200/80 bg-white p-5"
+              className="space-y-6 rounded-[14px] border border-stone-200/80 bg-(--bv-surface) p-5"
               style={{ boxShadow: "var(--bv-shadow-sm)" }}
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="max-w-3xl text-sm leading-relaxed text-stone-600">
+                <p className="max-w-3xl text-sm leading-relaxed text-stone-200">
                   商家 / 廣告卡片編輯區。可修改標題、介紹、價格、主圖與多張圖片網址，卡片視覺會延續前台的暖石色與柔和邊界。
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
                     disabled={busy}
-                    onClick={() => void addPost()}
+                    onClick={addPost}
                     className="rounded-xl bg-stone-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:opacity-50"
                   >
-                    新增卡片 / 새 카드
-                  </button>
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void seedDemoPosts()}
-                    className="rounded-xl border border-orange-300 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-900 transition hover:bg-orange-100 disabled:opacity-50"
-                  >
-                    插入示範 / 데모 삽입
+                    新增草稿 / 새 초안
                   </button>
                 </div>
               </div>
@@ -418,7 +375,7 @@ export default function AdminClient({ initialContent, initialPosts }: Props) {
                   <PostEditor key={p.id} row={p} busy={busy} onSave={savePost} onDelete={deletePost} />
                 ))}
               </ul>
-              {posts.length === 0 ? <p className="text-sm text-stone-500">目前沒有卡片，請按「新增卡片」。/ 카드가 없습니다.</p> : null}
+              {posts.length === 0 ? <p className="text-sm text-stone-300">目前沒有卡片，請按「新增卡片」。/ 카드가 없습니다.</p> : null}
             </section>
           )}
         </div>
@@ -442,7 +399,7 @@ function AdminTabButton({
       onClick={onClick}
       className={`rounded-[10px] px-3 py-2 text-sm font-medium transition ${
         active
-          ? "bg-white text-stone-900 shadow-[0_10px_22px_-18px_rgba(0,0,0,0.55)]"
+          ? "bg-(--bv-surface) text-stone-100 shadow-[0_10px_22px_-18px_rgba(0,0,0,0.55)]"
           : "text-stone-300 hover:bg-white/5 hover:text-stone-100"
       }`}
     >
@@ -463,6 +420,7 @@ function PostEditor({
   onDelete: (id: string) => void | Promise<void>;
 }) {
   const [draft, setDraft] = useState(row);
+  const draftPost = isDraftPostId(row.id);
   useEffect(() => {
     setDraft(row);
   }, [row]);
@@ -470,9 +428,14 @@ function PostEditor({
 
   return (
     <li
-      className="rounded-[14px] border border-stone-200/80 bg-white p-5"
+      className="rounded-[14px] border border-stone-200/80 bg-(--bv-surface) p-5"
       style={{ boxShadow: "var(--bv-shadow-sm)" }}
     >
+      {draftPost ? (
+        <div className="mb-4 rounded-[12px] border border-amber-300/40 bg-amber-500/10 px-4 py-3 text-[12px] leading-relaxed text-amber-100">
+          未儲存草稿。按下「儲存卡片」後才會正式公開顯示。 / 임시 초안 상태입니다.
+        </div>
+      ) : null}
       <div className="mb-4 rounded-[12px] border border-sky-200/60 bg-sky-50/50 px-4 py-3">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-700/80">欄位對照 / 필드 매핑 안내</p>
         <ul className="mt-2 space-y-1 text-[12px] leading-relaxed text-sky-900/80">
@@ -488,7 +451,7 @@ function PostEditor({
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block text-xs font-medium text-stone-500 sm:col-span-2">
+        <label className="block text-xs font-medium text-stone-300 sm:col-span-2">
           <span className="flex items-center gap-2">
             卡片標題 / 업체명·광고 제목
             <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] text-sky-700">→ 리스트 이름</span>
@@ -497,10 +460,10 @@ function PostEditor({
             value={draft.title}
             onChange={(e) => setDraft({ ...draft, title: e.target.value })}
             placeholder="예: 金玉滿堂 KTV / 금옥만당 노래방"
-            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
+            className="bv-dark-field mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm text-stone-100 placeholder:text-stone-400"
           />
         </label>
-        <label className="block text-xs font-medium text-stone-500 sm:col-span-2">
+        <label className="block text-xs font-medium text-stone-300 sm:col-span-2">
           <span className="flex items-center gap-2">
             介紹文案 / 업체 설명
             <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] text-sky-700">→ 클릭 시 상세</span>
@@ -510,10 +473,10 @@ function PostEditor({
             onChange={(e) => setDraft({ ...draft, body_text: e.target.value })}
             rows={4}
             placeholder="中文介紹 + 한국어 설명을 함께 넣으세요"
-            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
+            className="bv-dark-field mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm text-stone-100 placeholder:text-stone-400"
           />
         </label>
-        <label className="block text-xs font-medium text-stone-500">
+        <label className="block text-xs font-medium text-stone-300">
           <span className="flex items-center gap-2">
             價格 / 한 줄 정보
             <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] text-sky-700">→ 카드 가격</span>
@@ -522,10 +485,10 @@ function PostEditor({
             value={draft.price_info}
             onChange={(e) => setDraft({ ...draft, price_info: e.target.value })}
             placeholder="예: 包廂 ¥288起 / 룸 288위안~"
-            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
+            className="bv-dark-field mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm text-stone-100 placeholder:text-stone-400"
           />
         </label>
-        <label className="block text-xs font-medium text-stone-500">
+        <label className="block text-xs font-medium text-stone-300">
           <span className="flex items-center gap-2">
             主圖 URL / 프로필 이미지
             <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] text-sky-700">→ 대표 사진</span>
@@ -534,10 +497,10 @@ function PostEditor({
             value={draft.profile_image_url}
             onChange={(e) => setDraft({ ...draft, profile_image_url: e.target.value })}
             placeholder="https://example.com/shop-photo.jpg"
-            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
+            className="bv-dark-field mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm text-stone-100 placeholder:text-stone-400"
           />
         </label>
-        <label className="flex items-center gap-2 text-xs font-medium text-stone-500 sm:pt-5">
+        <label className="flex items-center gap-2 text-xs font-medium text-stone-300 sm:pt-5">
           <input
             type="checkbox"
             checked={draft.is_pinned}
@@ -545,17 +508,17 @@ function PostEditor({
           />
           置頂 / 상단 고정
         </label>
-        <label className="block text-xs font-medium text-stone-500">
+        <label className="block text-xs font-medium text-stone-300">
           排序 / 정렬（數字越大越靠前 / 숫자 클수록 앞에）
           <input
             type="number"
             value={draft.sort_order}
             onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) || 0 })}
-            className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
+            className="bv-dark-field mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm text-stone-100"
           />
         </label>
       </div>
-      <label className="mt-3 block text-xs font-medium text-stone-500">
+      <label className="mt-3 block text-xs font-medium text-stone-300">
         <span className="flex items-center gap-2">
           圖片集 URL / 갤러리 이미지 URL
           <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] text-sky-700">→ 상세 갤러리 (한 줄에 하나씩)</span>
@@ -571,11 +534,11 @@ function PostEditor({
           }}
           rows={3}
           placeholder={"https://example.com/photo-1.jpg\nhttps://example.com/photo-2.jpg"}
-          className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 font-mono text-xs text-stone-900"
+          className="bv-dark-field mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 font-mono text-xs text-stone-100 placeholder:text-stone-400"
         />
       </label>
 
-      <label className="mt-3 block text-xs font-medium text-stone-500">
+      <label className="mt-3 block text-xs font-medium text-stone-300">
         <span className="flex items-center gap-2">
           影片 URL / 영상 URL
           <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] text-sky-700">→ 상세 영상 (YouTube Shorts / MP4)</span>
@@ -584,13 +547,13 @@ function PostEditor({
           value={draft.video_url ?? ""}
           onChange={(e) => setDraft({ ...draft, video_url: e.target.value })}
           placeholder="https://youtube.com/shorts/xxxx 또는 https://example.com/video.mp4"
-          className="mt-1 w-full rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 text-sm text-stone-900"
+          className="bv-dark-field mt-1 w-full rounded-xl border border-stone-200/80 bg-(--bv-surface-2) px-3 py-2 text-sm text-stone-100 placeholder:text-stone-400"
         />
       </label>
 
       {draft.profile_image_url?.trim() ? (
-        <div className="mt-3 rounded-[12px] border border-stone-200/80 bg-stone-50 p-3">
-          <p className="mb-2 text-[11px] font-medium text-stone-500">主圖預覽 / 대표 이미지 미리보기</p>
+        <div className="mt-3 rounded-[12px] border border-stone-200/80 bg-(--bv-surface-2) p-3">
+          <p className="mb-2 text-[11px] font-medium text-stone-300">主圖預覽 / 대표 이미지 미리보기</p>
           <div className="relative aspect-video w-full max-w-[200px] overflow-hidden rounded-lg bg-stone-200">
             <Image src={draft.profile_image_url} alt="preview" fill className="object-cover" sizes="200px" unoptimized />
           </div>
@@ -604,7 +567,7 @@ function PostEditor({
           onClick={() => void onSave(draft)}
           className="rounded-xl bg-stone-950 px-3 py-2 text-sm font-medium text-white transition hover:bg-stone-800 disabled:opacity-50"
         >
-          儲存卡片 / 저장
+          {draftPost ? "發布卡片 / 공개 저장" : "儲存卡片 / 저장"}
         </button>
         <button
           type="button"
@@ -612,7 +575,7 @@ function PostEditor({
           onClick={() => void onDelete(draft.id)}
           className="rounded-xl border border-red-200 bg-white px-3 py-2 text-sm text-red-700 transition hover:bg-red-50 disabled:opacity-50"
         >
-          刪除 / 삭제
+          {draftPost ? "丟棄草稿 / 임시 삭제" : "刪除 / 삭제"}
         </button>
       </div>
     </li>

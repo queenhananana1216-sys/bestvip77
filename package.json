@@ -6,13 +6,15 @@
     "dev": "next dev --turbopack --hostname 127.0.0.1 --port 3010",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "admin:temp": "node ./scripts/create-temp-admin.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.101.1",
     "@vercel/analytics": "^2.0.1",
-    "next": "15.5.7",
+    "@vercel/speed-insights": "^2.0.0",
+    "next": "^15.5.14",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "server-only": "^0.0.1"

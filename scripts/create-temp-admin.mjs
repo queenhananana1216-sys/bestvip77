@@ -5,30 +5,19 @@ const { loadEnvConfig } = nextEnv;
 
 loadEnvConfig(process.cwd());
 
-const usernameMap = {
-  admin123: "admin123@bestvip77.admin.local",
-  admin456: "admin456@bestvip77.admin.local",
-};
-
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-const sharedPassword = process.env.ADMIN_PASSWORD?.trim();
-
-const passwordMap = {
-  admin123: process.env.ADMIN123_PASSWORD?.trim() || sharedPassword,
-  admin456: process.env.ADMIN456_PASSWORD?.trim() || sharedPassword,
-};
+const email = (process.env.TEMP_ADMIN_EMAIL?.trim() || "tempadmin@bestvip77.admin.local").toLowerCase();
+const password = process.env.TEMP_ADMIN_PASSWORD?.trim();
 
 if (!supabaseUrl || !serviceRoleKey) {
   console.error("NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY 필요");
   process.exit(1);
 }
 
-for (const [username, password] of Object.entries(passwordMap)) {
-  if (!password) {
-    console.error(`${username.toUpperCase()} password missing (set ADMIN_PASSWORD or ${username.toUpperCase()}_PASSWORD)`);
-    process.exit(1);
-  }
+if (!password) {
+  console.error("TEMP_ADMIN_PASSWORD missing");
+  process.exit(1);
 }
 
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
@@ -38,15 +27,18 @@ const supabase = createClient(supabaseUrl, serviceRoleKey, {
   },
 });
 
-async function ensureAdmin(username, email, password) {
+const loginId = email;
+const localPart = email.split("@")[0] || "tempadmin";
+
+async function ensureTempAdmin() {
   const { data: listed, error: listError } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (listError) {
     throw listError;
   }
 
-  const existing = listed.users.find((user) => user.email?.toLowerCase() === email.toLowerCase());
-
+  const existing = listed.users.find((user) => user.email?.toLowerCase() === email);
   let userId = existing?.id;
+
   if (!userId) {
     const { data: created, error: createError } = await supabase.auth.admin.createUser({
       email,
@@ -54,7 +46,8 @@ async function ensureAdmin(username, email, password) {
       email_confirm: true,
       user_metadata: {
         bestvip77: "true",
-        admin_username: username,
+        admin_username: localPart,
+        temp_admin: "true",
       },
     });
     if (createError) {
@@ -68,7 +61,8 @@ async function ensureAdmin(username, email, password) {
       user_metadata: {
         ...(existing?.user_metadata ?? {}),
         bestvip77: "true",
-        admin_username: username,
+        admin_username: localPart,
+        temp_admin: "true",
       },
     });
     if (updateError) {
@@ -76,19 +70,21 @@ async function ensureAdmin(username, email, password) {
     }
   }
 
-  const { error: adminInsertError } = await supabase.from("bestvip77_admins").upsert({ user_id: userId }, { onConflict: "user_id" });
+  const { error: adminInsertError } = await supabase
+    .from("bestvip77_admins")
+    .upsert({ user_id: userId }, { onConflict: "user_id" });
+
   if (adminInsertError) {
     throw adminInsertError;
   }
 
-  return { username, email, userId };
+  return { loginId, email, userId };
 }
 
-const results = [];
-
-for (const [username, email] of Object.entries(usernameMap)) {
-  const result = await ensureAdmin(username, email, passwordMap[username]);
-  results.push(result);
+try {
+  const result = await ensureTempAdmin();
+  console.log(JSON.stringify(result, null, 2));
+} catch (error) {
+  console.error(error);
+  process.exit(1);
 }
-
-console.log(JSON.stringify(results, null, 2));

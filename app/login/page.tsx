@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
-import { isReservedAdminUsername, validateLoginIdentifier } from "@/lib/admin/usernames";
+import {
+  isAdminEmailDomain,
+  isReservedAdminUsername,
+  normalizeLoginIdentifierInput,
+  validateLoginIdentifier,
+} from "@/lib/admin/usernames";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 function LoginForm() {
@@ -11,20 +16,11 @@ function LoginForm() {
   const sp = useSearchParams();
   const next = sp.get("next")?.startsWith("/") ? sp.get("next")! : "/";
 
-  const fieldStyle = {
-    background: "#fff7ed",
-    borderColor: "#d6b995",
-    boxShadow: "0 1px 0 rgba(255,255,255,0.85) inset",
-    color: "#2c1208",
-    WebkitTextFillColor: "#2c1208",
-    caretColor: "#2c1208",
-    opacity: 1,
-  } as const;
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const isAdminLogin = isReservedAdminUsername(email) || isAdminEmailDomain(email);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -52,7 +48,7 @@ function LoginForm() {
 
   return (
     <div
-      className="mx-auto w-full max-w-[400px] rounded-3xl border p-8 backdrop-blur-xl"
+      className="bv-light-ui mx-auto w-full max-w-[400px] rounded-3xl border p-8 backdrop-blur-xl"
       style={{
         background:
           "linear-gradient(180deg, rgba(255,252,247,0.98) 0%, rgba(255,248,240,0.96) 100%)",
@@ -77,13 +73,23 @@ function LoginForm() {
             placeholder="user@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onPaste={(e) => {
+              const t = e.clipboardData.getData("text/plain");
+              if (!t) return;
+              e.preventDefault();
+              setEmail(normalizeLoginIdentifierInput(t));
+            }}
             spellCheck={false}
             autoCapitalize="off"
-            className="w-full appearance-none rounded-xl border px-4 py-3 text-[15px] font-semibold outline-none transition-all placeholder:text-[#b08968] focus:border-[#b45309] focus:bg-white focus:ring-4 focus:ring-[#f59e0b]/10"
-            style={fieldStyle}
+            className="bv-light-field w-full appearance-none rounded-xl border px-4 py-3 text-[15px] font-semibold outline-none transition-all placeholder:text-[#b08968] focus:border-[#b45309] focus:bg-white focus:ring-4 focus:ring-[#f59e0b]/10"
+            style={{
+              background: "#fff7ed",
+              borderColor: "#d6b995",
+              boxShadow: "0 1px 0 rgba(255,255,255,0.85) inset",
+            }}
           />
-          {isReservedAdminUsername(email) ? (
-            <p className="mt-1 text-[11px] text-[#9a3412]">管理員登入模式 / 관리자 로그인 모드</p>
+          {isAdminLogin ? (
+            <p className="mt-1 text-[11px] text-[#9a3412]">管理員登入模式 / admin123, admin456 또는 관리자 이메일 사용 가능</p>
           ) : null}
         </div>
 
@@ -96,8 +102,12 @@ function LoginForm() {
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full appearance-none rounded-xl border px-4 py-3 text-[15px] font-semibold outline-none transition-all placeholder:text-[#b08968] focus:border-[#b45309] focus:bg-white focus:ring-4 focus:ring-[#f59e0b]/10"
-            style={fieldStyle}
+            className="bv-light-field w-full appearance-none rounded-xl border px-4 py-3 text-[15px] font-semibold outline-none transition-all placeholder:text-[#b08968] focus:border-[#b45309] focus:bg-white focus:ring-4 focus:ring-[#f59e0b]/10"
+            style={{
+              background: "#fff7ed",
+              borderColor: "#d6b995",
+              boxShadow: "0 1px 0 rgba(255,255,255,0.85) inset",
+            }}
           />
         </div>
 

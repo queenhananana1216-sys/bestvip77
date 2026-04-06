@@ -63,6 +63,12 @@ export function normalizePhoneNumber(country: CarrierCountry, input: string) {
   return country === "KR" ? normalizeKrPhone(input) : normalizeCnPhone(input);
 }
 
+export function normalizePhoneNumberAny(input: string) {
+  const kr = normalizeKrPhone(input);
+  if (kr) return kr;
+  return normalizeCnPhone(input);
+}
+
 export function phonePlaceholder(country: CarrierCountry) {
   return country === "KR" ? "01012345678" : "13800138000";
 }

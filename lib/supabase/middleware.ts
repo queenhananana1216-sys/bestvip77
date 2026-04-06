@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isPortalAdminEmail } from "@/lib/admin/portal-admin";
 
 /** 비로그인 허용 */
 const ANON_OK = ["/login", "/register", "/auth/callback"] as const;
@@ -57,13 +58,17 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
     return response;
   }
 
-  const { data: adminRow } = await supabase
-    .from("bestvip77_admins")
-    .select("user_id")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  let isAdmin = isPortalAdminEmail(user);
+  if (!isAdmin) {
+    const { data: adminRow } = await supabase
+      .from("bestvip77_admins")
+      .select("user_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    isAdmin = Boolean(adminRow);
+  }
 
-  if (adminRow) {
+  if (isAdmin) {
     if (pathname === "/login" || pathname === "/register" || pathname === "/verify-phone" || pathname === "/pending-approval") {
       return redirectTo("/admin");
     }

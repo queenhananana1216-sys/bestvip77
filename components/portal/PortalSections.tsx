@@ -141,6 +141,52 @@ export function UrlStripSection({ content }: { content: PortalSiteContent }) {
 export function SocialLinksSection({ content }: { content: PortalSiteContent }) {
   const tg = content.telegram;
   const ln = content.line;
+  const links: Array<{
+    href: string;
+    name: string;
+    colorFrom: string;
+    colorTo: string;
+    glowColor: string;
+    neonColor: string;
+    icon: React.ReactNode;
+  }> = [];
+
+  const telegramHref = tg.ctaHref?.trim();
+  const lineHref = ln.ctaHref?.trim();
+
+  if (telegramHref) {
+    links.push({
+      href: telegramHref,
+      name: "Telegram",
+      colorFrom: "#2AABEE",
+      colorTo: "#1E96CC",
+      glowColor: "rgba(42,171,238,0.35)",
+      neonColor: "#4DC4FF",
+      icon: (
+        <svg viewBox="0 0 24 24" className="ml-[-2px] h-9 w-9" fill="currentColor">
+          <path d="M19.777 5.145 4.54 10.902c-.623.248-.618.593-.113.748l3.815 1.19 1.48 4.55c.18.497.09.695.51.695.335 0 .483-.155.67-.338l2.804-2.722 5.82 4.26c1.07.59 1.84.28 2.1-.97l3.06-14.42c.38-1.52-.58-2.2-1.57-1.75z" />
+        </svg>
+      ),
+    });
+  }
+
+  if (lineHref) {
+    links.push({
+      href: lineHref,
+      name: "LINE",
+      colorFrom: "#00C300",
+      colorTo: "#00A500",
+      glowColor: "rgba(0,195,0,0.35)",
+      neonColor: "#00FF88",
+      icon: (
+        <svg viewBox="0 0 24 24" className="h-10 w-10" fill="currentColor">
+          <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .348-.281.63-.63.63H18.06v1.085h1.306c.349 0 .63.283.63.63 0 .349-.281.631-.63.631h-1.937a.63.63 0 0 1-.63-.631V8.603a.63.63 0 0 1 .63-.63h1.937c.349 0 .63.282.63.63 0 .349-.281.631-.63.631H18.06v1.629h1.306zm-3.26 3.352a.63.63 0 0 1-.631.631.635.635 0 0 1-.521-.27l-1.805-2.466v2.105a.63.63 0 0 1-.63.631.63.63 0 0 1-.631-.631V8.603a.63.63 0 0 1 .631-.63c.2 0 .387.095.521.27l1.805 2.462V8.603a.63.63 0 0 1 .63-.63c.348 0 .631.282.631.63v4.612zm-5.481 0a.63.63 0 0 1-.63.631.631.631 0 0 1-.631-.631V8.603a.63.63 0 0 1 .63-.63c.349 0 .631.282.631.63v4.612zm-2.153.631H6.534a.63.63 0 0 1-.63-.631V8.603a.63.63 0 0 1 .63-.63c.349 0 .63.282.63.63v3.981h1.307c.349 0 .63.283.63.631 0 .349-.281.631-.63.631M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.084.922.258 1.058.592.12.301.079.773.038 1.078l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
+        </svg>
+      ),
+    });
+  }
+
+  if (!links.length) return null;
 
   return (
     <section className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-xl">
@@ -148,32 +194,18 @@ export function SocialLinksSection({ content }: { content: PortalSiteContent }) 
         官方聯繫方式
       </h3>
       <div className="flex justify-center gap-10">
-        <SocialIcon
-          href={tg.ctaHref}
-          name="Telegram"
-          colorFrom="#2AABEE"
-          colorTo="#1E96CC"
-          glowColor="rgba(42,171,238,0.35)"
-          neonColor="#4DC4FF"
-          icon={
-            <svg viewBox="0 0 24 24" className="h-9 w-9 ml-[-2px]" fill="currentColor">
-              <path d="M19.777 5.145 4.54 10.902c-.623.248-.618.593-.113.748l3.815 1.19 1.48 4.55c.18.497.09.695.51.695.335 0 .483-.155.67-.338l2.804-2.722 5.82 4.26c1.07.59 1.84.28 2.1-.97l3.06-14.42c.38-1.52-.58-2.2-1.57-1.75z" />
-            </svg>
-          }
-        />
-        <SocialIcon
-          href={ln.ctaHref}
-          name="LINE"
-          colorFrom="#00C300"
-          colorTo="#00A500"
-          glowColor="rgba(0,195,0,0.35)"
-          neonColor="#00FF88"
-          icon={
-            <svg viewBox="0 0 24 24" className="h-10 w-10" fill="currentColor">
-              <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .348-.281.63-.63.63H18.06v1.085h1.306c.349 0 .63.283.63.63 0 .349-.281.631-.63.631h-1.937a.63.63 0 0 1-.63-.631V8.603a.63.63 0 0 1 .63-.63h1.937c.349 0 .63.282.63.63 0 .349-.281.631-.63.631H18.06v1.629h1.306zm-3.26 3.352a.63.63 0 0 1-.631.631.635.635 0 0 1-.521-.27l-1.805-2.466v2.105a.63.63 0 0 1-.63.631.63.63 0 0 1-.631-.631V8.603a.63.63 0 0 1 .631-.63c.2 0 .387.095.521.27l1.805 2.462V8.603a.63.63 0 0 1 .63-.63c.348 0 .631.282.631.63v4.612zm-5.481 0a.63.63 0 0 1-.63.631.631.631 0 0 1-.631-.631V8.603a.63.63 0 0 1 .63-.63c.349 0 .631.282.631.63v4.612zm-2.153.631H6.534a.63.63 0 0 1-.63-.631V8.603a.63.63 0 0 1 .63-.63c.349 0 .63.282.63.63v3.981h1.307c.349 0 .63.283.63.631 0 .349-.281.631-.63.631M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.084.922.258 1.058.592.12.301.079.773.038 1.078l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
-            </svg>
-          }
-        />
+        {links.map((link) => (
+          <SocialIcon
+            key={link.name}
+            href={link.href}
+            name={link.name}
+            colorFrom={link.colorFrom}
+            colorTo={link.colorTo}
+            glowColor={link.glowColor}
+            neonColor={link.neonColor}
+            icon={link.icon}
+          />
+        ))}
       </div>
     </section>
   );
@@ -221,6 +253,8 @@ function SocialIcon({
 
 export function AdCtaSection({ content }: { content: PortalSiteContent }) {
   const a = content.adCta;
+  if (!a.title.trim() || !a.body.trim() || !a.buttonLabel.trim() || !a.buttonHref.trim()) return null;
+
   return (
     <section className="relative overflow-hidden rounded-[20px] border border-white/[0.08] bg-gradient-to-br from-[#FF3B00]/90 to-[#FF8C00]/90 px-6 py-10 shadow-[0_20px_60px_-12px_rgba(255,59,0,0.4)]">
       <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-[#FFD700] opacity-[0.08] blur-[60px]" />

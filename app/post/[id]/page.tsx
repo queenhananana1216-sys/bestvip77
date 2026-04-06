@@ -40,7 +40,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
       </header>
 
       <main className="mx-auto max-w-lg bg-white shadow-sm sm:max-w-xl">
-        {/* User Info Section */}
+        {/* Merchant Header */}
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             <div className="relative h-12 w-12 overflow-hidden rounded-full bg-stone-100 ring-1 ring-black/5">
@@ -54,8 +54,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
             </div>
             <div>
               <h1 className="text-[16px] font-semibold text-stone-900">{post.title || "（無標題）"}</h1>
-              <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-[12px] text-stone-500">24歲</span>
+              <div className="mt-0.5 flex items-center gap-2">
                 {post.price_info && (
                   <span className="rounded bg-orange-50 px-1.5 py-0.5 text-[11px] font-medium text-orange-600">
                     {post.price_info}
@@ -64,9 +63,6 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
               </div>
             </div>
           </div>
-          <button className="rounded-full bg-stone-900 px-4 py-1.5 text-[13px] font-medium text-white transition hover:bg-stone-800">
-            關注
-          </button>
         </div>
 
         {/* Description */}
@@ -75,13 +71,6 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
             <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-stone-700">{post.body_text}</p>
           </div>
         )}
-
-        {/* Contact Info */}
-        <div className="px-4 pb-4">
-          <div className="rounded-lg bg-orange-50/50 p-3 ring-1 ring-orange-100">
-            <p className="text-[13px] font-medium text-orange-800">聯繫方式: 62173118</p>
-          </div>
-        </div>
 
         {/* Media Content */}
         <div className="space-y-1">
@@ -92,38 +81,10 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
           )}
           
           {galleryUrls.map((src, i) => (
-            <div key={i} className="relative aspect-[3/4] w-full bg-stone-100">
+            <div key={i} className="relative aspect-3/4 w-full bg-stone-100">
               <Image src={src} alt="" fill className="object-cover" sizes="(max-width:640px) 100vw, 600px" unoptimized />
             </div>
           ))}
-        </div>
-
-        {/* Action Bar */}
-        <div className="flex items-center justify-between border-b border-t border-stone-100 p-4">
-          <div className="flex gap-6">
-            <button className="flex items-center gap-1.5 text-stone-500 hover:text-stone-900">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
-              </svg>
-              <span className="text-[13px]">讚</span>
-            </button>
-            <button className="flex items-center gap-1.5 text-stone-500 hover:text-stone-900">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-              </svg>
-              <span className="text-[13px]">{comments.length}</span>
-            </button>
-          </div>
-          <button className="flex items-center gap-1.5 text-stone-500 hover:text-stone-900">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="18" cy="5" r="3" />
-              <circle cx="6" cy="12" r="3" />
-              <circle cx="18" cy="19" r="3" />
-              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-            </svg>
-            <span className="text-[13px]">分享</span>
-          </button>
         </div>
 
         {/* Comments Section */}

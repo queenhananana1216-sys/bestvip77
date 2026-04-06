@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { normalizePhoneNumber } from "@/lib/register/phone";
+import { normalizePhoneNumber, normalizePhoneNumberAny } from "@/lib/register/phone";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { tryCreateServerSupabaseAuthClient } from "@/lib/supabase/server-auth";
 
@@ -13,8 +13,10 @@ type Payload = {
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as Payload;
-    const country = body.country === "CN" ? "CN" : "KR";
-    const normalizedPhone = normalizePhoneNumber(country, body.phone ?? "");
+    const normalizedPhone =
+      typeof body.country === "string"
+        ? normalizePhoneNumber(body.country === "CN" ? "CN" : "KR", body.phone ?? "")
+        : normalizePhoneNumberAny(body.phone ?? "");
 
     if (!normalizedPhone) {
       return NextResponse.json({ error: "invalid_phone" }, { status: 400 });
