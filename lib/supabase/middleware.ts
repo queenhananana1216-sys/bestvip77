@@ -2,12 +2,9 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isPortalAdminEmail } from "@/lib/admin/portal-admin";
 
-/** 비로그인 허용 */
+/** 비로그인 허용 페이지 */
 const ANON_OK = ["/login", "/register", "/auth/callback"] as const;
 const PHONE_VERIFY_OK = ["/verify-phone", "/auth/callback"] as const;
-
-/** API 라우트는 미들웨어 인증 체크 제외 (각 API에서 자체 인증 처리) */
-const API_PATHS = ["/api/"] as const;
 
 function matches(pathname: string, prefixes: readonly string[]): boolean {
   return prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
@@ -21,8 +18,16 @@ function copyCookies(from: NextResponse, to: NextResponse) {
 
 /**
  * 세션 갱신 + 휴대폰 OTP 인증 완료 회원만 포털 접근 (관리자는 예외)
+ * API 라우트(/api/*)는 각 라우트에서 자체 인증 처리하므로 미들웨어 제외
  */
 export async function updateSession(request: NextRequest): Promise<NextResponse> {
+  const pathname = request.nextUrl.pathname;
+
+  // API 경로는 미들웨어 인증 체크 없이 바로 통과
+  if (pathname.startsWith("/api/")) {
+    return NextResponse.next({ request: { headers: request.headers } });
+  }
+
   let response = NextResponse.next({ request: { headers: request.headers } });
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
@@ -45,13 +50,6 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const pathname = request.nextUrl.pathname;
-
-  // API 경로는 미들웨어 리다이렉트 없이 통과
-  if (matches(pathname, API_PATHS)) {
-    return response;
-  }
 
   const redirectTo = (path: string) => {
     const dest = NextResponse.redirect(new URL(path, request.url));
@@ -98,4 +96,3 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
 
   return response;
 }
-
