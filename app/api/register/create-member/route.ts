@@ -49,7 +49,6 @@ export async function POST(request: Request) {
     if (existingUser) {
       return NextResponse.json({ error: "duplicate_login_id", message: "이미 사용 중인 아이디입니다." }, { status: 409 });
     }
-
     const { data: created, error: createError } = await serviceClient.auth.admin.createUser({
       email: validated.email,
       password,
@@ -76,6 +75,25 @@ export async function POST(request: Request) {
     const userId = created.user?.id;
     if (!userId) {
       return NextResponse.json({ error: "user_create_failed" }, { status: 500 });
+    }
+
+    const { error: profileError } = await serviceClient.from("bestvip77_member_profiles").upsert(
+      {
+        user_id: userId,
+        email: validated.email,
+        carrier_country: country,
+        carrier_label: null,
+        display_name_zh: displayNameZh,
+        display_name_ko: displayNameKo || null,
+        display_name_en: "",
+        status: "approved",
+        reviewed_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" },
+    );
+    if (profileError) {
+      await serviceClient.auth.admin.deleteUser(userId);
+      return NextResponse.json({ error: profileError.message }, { status: 500 });
     }
 
     return NextResponse.json({

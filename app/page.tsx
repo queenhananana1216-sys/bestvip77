@@ -36,8 +36,8 @@ function MarqueeBanner() {
 
 function LaunchHighlights() {
   const items = [
-    { title: "SMS 認證", body: "휴대폰 인증 완료 후 이용" },
-    { title: "人工審核", body: "관리자 확인 기반 회원 운영" },
+    { title: "快速註冊", body: "전화번호 인증 없이 바로 가입" },
+    { title: "即時使用", body: "가입 후 추가 승인 없이 바로 이용" },
     { title: "站內更新", body: "공지와 접속 정보를 수시 갱신" },
     { title: "會員專區", body: "로그인 회원 중심으로 운영" },
   ];

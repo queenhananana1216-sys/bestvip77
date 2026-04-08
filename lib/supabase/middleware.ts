@@ -4,7 +4,6 @@ import { isPortalAdminEmail } from "@/lib/admin/portal-admin";
 
 /** 비로그인 허용 페이지 */
 const ANON_OK = ["/login", "/register", "/auth/callback"] as const;
-const PHONE_VERIFY_OK = ["/verify-phone", "/auth/callback"] as const;
 
 function matches(pathname: string, prefixes: readonly string[]): boolean {
   return prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
@@ -17,7 +16,7 @@ function copyCookies(from: NextResponse, to: NextResponse) {
 }
 
 /**
- * 세션 갱신 + 휴대폰 OTP 인증 완료 회원만 포털 접근 (관리자는 예외)
+ * 세션 갱신 + 관리자/일반 회원 라우팅 처리
  * API 라우트(/api/*)는 각 라우트에서 자체 인증 처리하므로 미들웨어 제외
  */
 export async function updateSession(request: NextRequest): Promise<NextResponse> {
@@ -79,15 +78,6 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
       return redirectTo("/admin");
     }
     return response;
-  }
-
-  const phoneVerified = Boolean(user.phone_confirmed_at);
-
-  if (!phoneVerified) {
-    if (pathname === "/register" || matches(pathname, PHONE_VERIFY_OK)) {
-      return response;
-    }
-    return redirectTo("/verify-phone");
   }
 
   if (pathname === "/login" || pathname === "/register" || pathname === "/verify-phone" || pathname === "/pending-approval") {

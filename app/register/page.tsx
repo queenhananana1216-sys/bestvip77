@@ -5,52 +5,14 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { normalizeLoginIdentifierInput, validateMemberLoginId } from "@/lib/admin/usernames";
 import { createBrowserClient } from "@/lib/supabase/client";
-import { type CarrierCountry } from "@/lib/register/carriers";
-import { normalizePhoneNumberAny, rememberPendingPhone } from "@/lib/register/phone";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [loginId, setLoginId] = useState("");
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  async function isPhoneAvailable(nextPhone: string) {
-    const res = await fetch("/api/register/phone-availability", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ phone: nextPhone }),
-    });
-    if (!res.ok) return true;
-    const data = (await res.json()) as { available?: boolean };
-    return data.available !== false;
-  }
-
-  async function ensureProfileRow(
-    userId: string,
-    userEmail: string | undefined,
-    cc: CarrierCountry,
-    nextDisplayNameZh: string,
-    nextDisplayNameKo: string,
-    nextDisplayNameEn: string,
-  ) {
-    const sb = createBrowserClient();
-    const { error } = await sb.from("bestvip77_member_profiles").insert({
-      user_id: userId,
-      email: userEmail ?? null,
-      carrier_country: cc,
-      carrier_label: null,
-      display_name_zh: nextDisplayNameZh,
-      display_name_ko: nextDisplayNameKo || null,
-      display_name_en: nextDisplayNameEn || null,
-      status: "pending",
-    });
-    if (error && error.code !== "23505") {
-      console.warn("[bestvip77] member_profiles insert:", error.message);
-    }
-  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -58,25 +20,11 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const sb = createBrowserClient();
-      const normalizedPhone = normalizePhoneNumberAny(phone);
       const validatedLoginId = validateMemberLoginId(normalizeLoginIdentifierInput(loginId));
       const nextNickname = nickname.trim();
-      const nextDisplayNameEn = "";
-      const country: CarrierCountry = normalizedPhone?.startsWith("+86") ? "CN" : "KR";
 
       if (!validatedLoginId.ok) {
         setErr(validatedLoginId.error);
-        return;
-      }
-
-      if (!normalizedPhone) {
-        setErr("휴대폰 번호를 다시 확인해 주세요. (예: 01012345678)");
-        return;
-      }
-
-      const available = await isPhoneAvailable(phone);
-      if (!available) {
-        setErr("此手機號碼已被使用，請改用其他號碼。/ 이미 가입에 사용된 휴대폰 번호입니다.");
         return;
       }
 
@@ -91,7 +39,7 @@ export default function RegisterPage() {
         body: JSON.stringify({
           loginId: validatedLoginId.loginId,
           password,
-          country,
+          country: "KR",
           displayNameZh: nextNickname,
           displayNameKo: nextNickname,
         }),
@@ -115,21 +63,7 @@ export default function RegisterPage() {
         return;
       }
 
-      rememberPendingPhone(normalizedPhone);
-
-      const uid = data.user.id;
-      if (uid) {
-        await ensureProfileRow(
-          uid,
-          data.user.email ?? validatedLoginId.email,
-          country,
-          nextNickname,
-          nextNickname,
-          nextDisplayNameEn,
-        );
-      }
-
-      router.push("/verify-phone?auto=1");
+      router.push("/");
       router.refresh();
     } finally {
       setLoading(false);
@@ -175,20 +109,6 @@ export default function RegisterPage() {
               placeholder="닉네임을 입력해 주세요 / 請輸入暱稱"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              className="bv-light-field w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-[13px] font-medium text-zinc-700">Phone</label>
-            <input
-              type="tel"
-              required
-              inputMode="tel"
-              autoComplete="tel"
-              placeholder="01012345678"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
               className="bv-light-field w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-500 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
             />
           </div>
