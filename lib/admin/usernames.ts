@@ -69,7 +69,7 @@ export function isReservedAdminEmail(value: string) {
 
 export function isMemberLoginId(value: string) {
   const normalized = normalize(value);
-  return /^[a-z0-9](?:[a-z0-9._-]{2,28}[a-z0-9])?$/.test(normalized);
+  return /^[a-z0-9][a-z0-9._-]{2,28}[a-z0-9]$/.test(normalized);
 }
 
 export function toMemberAuthEmail(loginId: string) {

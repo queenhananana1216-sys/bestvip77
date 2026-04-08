@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "invalid_login_id", message: validated.error }, { status: 400 });
     }
 
-    const password = (body.password ?? "").trim();
+    const password = body.password ?? "";
     if (password.length < 6) {
       return NextResponse.json({ error: "weak_password", message: "비밀번호는 6자 이상이어야 합니다." }, { status: 400 });
     }
@@ -34,21 +34,35 @@ export async function POST(request: Request) {
     const country = body.country === "CN" ? "CN" : "KR";
     const serviceClient = createServiceRoleClient();
 
-    // auth.schema 직접 조회 대신 admin.listUsers + filter로 중복 체크
+    // auth.schema 직접 조회 대신 admin.listUsers 페이지네이션으로 중복 체크
     // (auth 스키마 직접 접근은 PGRST106 오류 발생)
-    const { data: userList, error: listError } = await serviceClient.auth.admin.listUsers({
-      page: 1,
-      perPage: 1000,
-    });
+    let page = 1;
+    let foundDuplicate = false;
+    while (!foundDuplicate) {
+      const { data: userPage, error: listError } = await serviceClient.auth.admin.listUsers({
+        page,
+        perPage: 1000,
+      });
 
-    if (listError) {
-      return NextResponse.json({ error: listError.message }, { status: 500 });
+      if (listError) {
+        return NextResponse.json({ error: listError.message }, { status: 500 });
+      }
+
+      if (userPage?.users?.some((u) => u.email === validated.email)) {
+        foundDuplicate = true;
+        break;
+      }
+
+      if (!userPage?.nextPage) {
+        break;
+      }
+      page = userPage.nextPage;
     }
 
-    const existingUser = userList?.users?.find((u) => u.email === validated.email);
-    if (existingUser) {
+    if (foundDuplicate) {
       return NextResponse.json({ error: "duplicate_login_id", message: "이미 사용 중인 아이디입니다." }, { status: 409 });
     }
+
     const { data: created, error: createError } = await serviceClient.auth.admin.createUser({
       email: validated.email,
       password,
