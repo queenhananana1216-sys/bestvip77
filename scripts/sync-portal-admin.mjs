@@ -7,11 +7,33 @@ loadEnvConfig(process.cwd());
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-/** 기본 포털 관리자(실제 이메일). 환경 변수로 덮어쓸 수 있음 */
-const portalAdminEmail = (process.env.PORTAL_ADMIN_EMAIL || "kstop12@nate.com").trim().toLowerCase();
+
+/**
+ * 콤마로 구분한 포털 관리자 이메일 목록.
+ * PORTAL_ADMIN_EMAILS 우선, 없으면 PORTAL_ADMIN_EMAIL 단일 값, 둘 다 없으면 기본 2명.
+ */
+function parsePortalAdminEmails() {
+  const multi = process.env.PORTAL_ADMIN_EMAILS?.trim();
+  if (multi) {
+    return multi
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+  }
+  const single = process.env.PORTAL_ADMIN_EMAIL?.trim();
+  if (single) return [single.toLowerCase()];
+  return ["kstop12@nate.com", "llangkka00@gmail.com"];
+}
+
+const portalAdminEmails = parsePortalAdminEmails();
 
 if (!supabaseUrl || !serviceRoleKey) {
   console.error("NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY 필요");
+  process.exit(1);
+}
+
+if (portalAdminEmails.length === 0) {
+  console.error("포털 관리자 이메일이 비어 있습니다.");
   process.exit(1);
 }
 
@@ -53,21 +75,22 @@ async function deleteSyntheticAuthUsers() {
   }
 }
 
-/** `keepUserId`에 해당하는 행만 남기고 나머지 관리자 행 삭제(없으면 전부 삭제) */
-async function pruneOtherAdminRows(keepUserId) {
+/** `keepUserIds`에 없는 bestvip77_admins 행만 삭제(비어 있으면 전부 삭제) */
+async function pruneAdminRowsNotIn(keepUserIds) {
+  const keep = keepUserIds instanceof Set ? keepUserIds : new Set(keepUserIds);
   const { data: rows, error } = await supabase.from("bestvip77_admins").select("user_id");
   if (error) throw error;
   let removed = 0;
   for (const row of rows ?? []) {
-    if (keepUserId && row.user_id === keepUserId) continue;
+    if (keep.has(row.user_id)) continue;
     const { error: delErr } = await supabase.from("bestvip77_admins").delete().eq("user_id", row.user_id);
     if (delErr) throw delErr;
     removed += 1;
   }
-  if (removed > 0) console.log("removed other bestvip77_admins rows:", removed);
+  if (removed > 0) console.log("removed non-portal bestvip77_admins rows:", removed);
 }
 
-async function ensurePortalAdminUser() {
+async function ensureOnePortalAdmin(portalAdminEmail) {
   const users = await listAllAuthUsers();
   const existing = users.find((u) => (u.email ?? "").toLowerCase() === portalAdminEmail);
 
@@ -122,9 +145,14 @@ async function ensurePortalAdminUser() {
 try {
   await deleteSyntheticAuthUsers();
   const usersAfterSynthetic = await listAllAuthUsers();
-  const portalUserEarly = usersAfterSynthetic.find((u) => (u.email ?? "").toLowerCase() === portalAdminEmail);
-  await pruneOtherAdminRows(portalUserEarly?.id);
-  await ensurePortalAdminUser();
+  const keepIds = new Set(
+    usersAfterSynthetic.filter((u) => portalAdminEmails.includes((u.email ?? "").toLowerCase())).map((u) => u.id),
+  );
+  await pruneAdminRowsNotIn(keepIds);
+
+  for (const email of portalAdminEmails) {
+    await ensureOnePortalAdmin(email);
+  }
 } catch (error) {
   console.error(error);
   process.exit(1);

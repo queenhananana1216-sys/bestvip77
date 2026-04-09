@@ -53,8 +53,8 @@ Each key below is a `.env.local` setting in this project.
      - API check: POST `/api/register/phone-availability` returns JSON instead of server 500 from missing key.
    - Important: keep this key only on server `.env.local` / hosting env vars. Never expose to client code.
 
-4. `PORTAL_ADMIN_EMAIL` (optional)
-   - Purpose: real mailbox used for the portal admin account when running `npm run admin:sync-portal`. Defaults to `kstop12@nate.com` in the script if unset.
+4. `PORTAL_ADMIN_EMAIL` / `PORTAL_ADMIN_EMAILS` (optional)
+   - Purpose: real mailbox(es), up to how many you list, granted `bestvip77_admins` when running `npm run admin:sync-portal`. Defaults to `kstop12@nate.com` and `llangkka00@gmail.com` if unset. Use `PORTAL_ADMIN_EMAILS=a@x.com,b@y.com` for several.
    - Where used: `scripts/sync-portal-admin.mjs`.
    - How to verify:
      - Apply migration `067_remove_synthetic_portal_admin_auth_users.sql` (removes legacy `@bestvip77.admin.local` auth users).
