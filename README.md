@@ -53,17 +53,15 @@ Each key below is a `.env.local` setting in this project.
      - API check: POST `/api/register/phone-availability` returns JSON instead of server 500 from missing key.
    - Important: keep this key only on server `.env.local` / hosting env vars. Never expose to client code.
 
-4. `ADMIN123_PASSWORD` (optional)
-   - Purpose: seed password for `admin123` account in `scripts/seed-admin-users.mjs`.
+4. `ADMIN_PASSWORD` (optional)
+   - Purpose: seed password for the single reserved admin login id `bvadmin` (`bvadmin@bestvip77.admin.local`) in `scripts/seed-admin-users.mjs`.
    - Where used: `scripts/seed-admin-users.mjs`.
    - How to verify:
-     - Run `echo $env:ADMIN123_PASSWORD`; required only when running admin seed script.
+     - Set the variable, run `node ./scripts/seed-admin-users.mjs`, then log in at `/login` with id `bvadmin` and this password, open `/admin`.
 
-5. `ADMIN456_PASSWORD` (optional)
-   - Purpose: seed password for `admin456` account in `scripts/seed-admin-users.mjs`.
-   - Where used: `scripts/seed-admin-users.mjs`.
-   - How to verify:
-     - Run `echo $env:ADMIN456_PASSWORD`; required only when running admin seed script.
+5. `TEMP_ADMIN_PASSWORD` (optional)
+   - Purpose: same admin user via `npm run admin:temp` (`scripts/create-temp-admin.mjs`). Defaults to email `bvadmin@bestvip77.admin.local` when `TEMP_ADMIN_EMAIL` is unset.
+   - Where used: `scripts/create-temp-admin.mjs`, `package.json` script `admin:temp`.
 
 ## OTP guardrail migration
 

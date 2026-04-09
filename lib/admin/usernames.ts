@@ -1,9 +1,9 @@
 const ADMIN_EMAIL_DOMAIN = "bestvip77.admin.local";
 const MEMBER_EMAIL_DOMAIN = "bestvip77.user.local";
 
+/** 로그인 화면에는 짧은 ID만 입력; Supabase Auth에는 내부 도메인 이메일로 매핑 */
 export const ADMIN_USERNAME_MAP = {
-  admin123: `admin123@${ADMIN_EMAIL_DOMAIN}`,
-  admin456: `admin456@${ADMIN_EMAIL_DOMAIN}`,
+  bvadmin: `bvadmin@${ADMIN_EMAIL_DOMAIN}`,
 } as const;
 
 export type ReservedAdminUsername = keyof typeof ADMIN_USERNAME_MAP;
@@ -15,7 +15,7 @@ function normalize(value: string) {
 const EMAIL_IN_TEXT_RE = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i;
 
 /**
- * 붙여넣기용: mailto:, <email>, 따옴표, NBSP, 첫 줄만 등 정리 후 이메일 또는 admin123 형 식별자 반환
+ * 붙여넣기용: mailto:, <email>, 따옴표, NBSP, 첫 줄만 등 정리 후 이메일 또는 예약 관리자 ID(bvadmin) 형 식별자 반환
  */
 export function normalizeLoginIdentifierInput(raw: string): string {
   const s = String(raw)

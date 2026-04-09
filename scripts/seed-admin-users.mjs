@@ -6,29 +6,21 @@ const { loadEnvConfig } = nextEnv;
 loadEnvConfig(process.cwd());
 
 const usernameMap = {
-  admin123: "admin123@bestvip77.admin.local",
-  admin456: "admin456@bestvip77.admin.local",
+  bvadmin: "bvadmin@bestvip77.admin.local",
 };
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-const sharedPassword = process.env.ADMIN_PASSWORD?.trim();
-
-const passwordMap = {
-  admin123: process.env.ADMIN123_PASSWORD?.trim() || sharedPassword,
-  admin456: process.env.ADMIN456_PASSWORD?.trim() || sharedPassword,
-};
+const adminPassword = process.env.ADMIN_PASSWORD?.trim();
 
 if (!supabaseUrl || !serviceRoleKey) {
   console.error("NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY 필요");
   process.exit(1);
 }
 
-for (const [username, password] of Object.entries(passwordMap)) {
-  if (!password) {
-    console.error(`${username.toUpperCase()} password missing (set ADMIN_PASSWORD or ${username.toUpperCase()}_PASSWORD)`);
-    process.exit(1);
-  }
+if (!adminPassword) {
+  console.error("ADMIN_PASSWORD 가 비어 있습니다 (.env.local)");
+  process.exit(1);
 }
 
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
@@ -87,7 +79,7 @@ async function ensureAdmin(username, email, password) {
 const results = [];
 
 for (const [username, email] of Object.entries(usernameMap)) {
-  const result = await ensureAdmin(username, email, passwordMap[username]);
+  const result = await ensureAdmin(username, email, adminPassword);
   results.push(result);
 }
 

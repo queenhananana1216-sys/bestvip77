@@ -20,7 +20,7 @@ create policy "bestvip77_admins_select_own"
   to authenticated
   using (auth.uid() = user_id);
 
--- Reserved admin emails (admin123@ / admin456@ bestvip77.admin.local) get a row automatically.
+-- Users with email @bestvip77.admin.local (e.g. bvadmin@) get a row automatically once present in auth.users.
 insert into public.bestvip77_admins (user_id)
 select u.id
 from auth.users u

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "admin:temp": "node ./scripts/create-temp-admin.mjs"
+    "admin:temp": "node ./scripts/create-temp-admin.mjs",
+    "admin:seed": "node ./scripts/seed-admin-users.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.0",

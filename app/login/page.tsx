@@ -89,7 +89,7 @@ function LoginForm() {
             }}
           />
           {isAdminLogin ? (
-            <p className="mt-1 text-[11px] text-[#9a3412]">管理員登入模式 / admin123, admin456 또는 관리자 이메일 사용 가능</p>
+            <p className="mt-1 text-[11px] text-[#9a3412]">管理員登入模式 / 아이디 bvadmin 또는 bestvip77.admin.local 도메인 관리자 이메일</p>
           ) : null}
         </div>
 

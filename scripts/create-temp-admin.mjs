@@ -7,7 +7,7 @@ loadEnvConfig(process.cwd());
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-const email = (process.env.TEMP_ADMIN_EMAIL?.trim() || "tempadmin@bestvip77.admin.local").toLowerCase();
+const email = (process.env.TEMP_ADMIN_EMAIL?.trim() || "bvadmin@bestvip77.admin.local").toLowerCase();
 const password = process.env.TEMP_ADMIN_PASSWORD?.trim();
 
 if (!supabaseUrl || !serviceRoleKey) {
@@ -28,7 +28,7 @@ const supabase = createClient(supabaseUrl, serviceRoleKey, {
 });
 
 const loginId = email;
-const localPart = email.split("@")[0] || "tempadmin";
+const localPart = email.split("@")[0] || "bvadmin";
 
 async function ensureTempAdmin() {
   const { data: listed, error: listError } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
