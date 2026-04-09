@@ -3,12 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
-import {
-  isAdminEmailDomain,
-  isReservedAdminUsername,
-  normalizeLoginIdentifierInput,
-  validateLoginIdentifier,
-} from "@/lib/admin/usernames";
+import { normalizeLoginIdentifierInput, validateLoginIdentifier } from "@/lib/admin/usernames";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 function LoginForm() {
@@ -20,8 +15,6 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const isAdminLogin = isReservedAdminUsername(email) || isAdminEmailDomain(email);
-
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setErr(null);
@@ -88,9 +81,6 @@ function LoginForm() {
               boxShadow: "0 1px 0 rgba(255,255,255,0.85) inset",
             }}
           />
-          {isAdminLogin ? (
-            <p className="mt-1 text-[11px] text-[#9a3412]">管理員登入模式 / 아이디 bvadmin 또는 bestvip77.admin.local 도메인 관리자 이메일</p>
-          ) : null}
         </div>
 
         <div className="space-y-1.5">
@@ -130,7 +120,12 @@ function LoginForm() {
         </button>
       </form>
 
-      <div className="mt-8 text-center">
+      <div className="mt-8 space-y-2 text-center">
+        <p className="text-[13px] text-[#7c2d12]">
+          <Link href="/forgot-password" className="font-semibold text-[#7f1d1d] hover:underline">
+            비밀번호를 잊으셨나요? / 忘記密碼
+          </Link>
+        </p>
         <p className="text-[13px] text-[#7c2d12]">
           還沒有帳號？ / 계정이 없으신가요?{" "}
           <Link href="/register" className="font-semibold text-[#7f1d1d] hover:underline">

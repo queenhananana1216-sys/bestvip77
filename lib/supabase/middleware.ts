@@ -1,9 +1,14 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { isPortalAdminEmail } from "@/lib/admin/portal-admin";
 
 /** 비로그인 허용 페이지 */
-const ANON_OK = ["/login", "/register", "/auth/callback"] as const;
+const ANON_OK = [
+  "/login",
+  "/register",
+  "/auth/callback",
+  "/forgot-password",
+  "/auth/set-password",
+] as const;
 
 function matches(pathname: string, prefixes: readonly string[]): boolean {
   return prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
@@ -63,15 +68,12 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
     return response;
   }
 
-  let isAdmin = isPortalAdminEmail(user);
-  if (!isAdmin) {
-    const { data: adminRow } = await supabase
-      .from("bestvip77_admins")
-      .select("user_id")
-      .eq("user_id", user.id)
-      .maybeSingle();
-    isAdmin = Boolean(adminRow);
-  }
+  const { data: adminRow } = await supabase
+    .from("bestvip77_admins")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  const isAdmin = Boolean(adminRow);
 
   if (isAdmin) {
     if (pathname === "/login" || pathname === "/register" || pathname === "/verify-phone" || pathname === "/pending-approval") {

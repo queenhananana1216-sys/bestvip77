@@ -1,12 +1,4 @@
-const ADMIN_EMAIL_DOMAIN = "bestvip77.admin.local";
 const MEMBER_EMAIL_DOMAIN = "bestvip77.user.local";
-
-/** 로그인 화면에는 짧은 ID만 입력; Supabase Auth에는 내부 도메인 이메일로 매핑 */
-export const ADMIN_USERNAME_MAP = {
-  bvadmin: `bvadmin@${ADMIN_EMAIL_DOMAIN}`,
-} as const;
-
-export type ReservedAdminUsername = keyof typeof ADMIN_USERNAME_MAP;
 
 function normalize(value: string) {
   return value.trim().toLowerCase();
@@ -15,7 +7,7 @@ function normalize(value: string) {
 const EMAIL_IN_TEXT_RE = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i;
 
 /**
- * 붙여넣기용: mailto:, <email>, 따옴표, NBSP, 첫 줄만 등 정리 후 이메일 또는 예약 관리자 ID(bvadmin) 형 식별자 반환
+ * 붙여넣기용: mailto:, <email>, 따옴표, NBSP, 첫 줄만 등 정리 후 이메일 또는 회원 아이디 형 식별자 반환
  */
 export function normalizeLoginIdentifierInput(raw: string): string {
   const s = String(raw)
@@ -37,8 +29,6 @@ export function normalizeLoginIdentifierInput(raw: string): string {
 
     const found = t.match(EMAIL_IN_TEXT_RE);
     if (found) return found[0].toLowerCase();
-
-    if (isReservedAdminUsername(t)) return normalize(t);
   }
 
   let rest = chunks[0] ?? s;
@@ -51,20 +41,6 @@ export function normalizeLoginIdentifierInput(raw: string): string {
 export function isEmailLike(value: string) {
   const normalized = normalize(value);
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized);
-}
-
-export function isReservedAdminUsername(value: string) {
-  const normalized = normalize(value);
-  return normalized in ADMIN_USERNAME_MAP;
-}
-
-export function isAdminEmailDomain(value: string) {
-  return normalize(value).endsWith(`@${ADMIN_EMAIL_DOMAIN}`);
-}
-
-export function isReservedAdminEmail(value: string) {
-  const normalized = normalize(value);
-  return Object.values(ADMIN_USERNAME_MAP).includes(normalized as (typeof ADMIN_USERNAME_MAP)[ReservedAdminUsername]);
 }
 
 export function isMemberLoginId(value: string) {
@@ -98,12 +74,6 @@ export function validateMemberLoginId(value: string) {
       error: "이메일 주소 대신 아이디를 입력해 주세요. / 請輸入ID，不要輸入電子郵件地址。",
     };
   }
-  if (isReservedAdminUsername(normalized) || isReservedAdminEmail(normalized) || isAdminEmailDomain(normalized)) {
-    return {
-      ok: false as const,
-      error: "해당 아이디는 관리자 전용으로 사용할 수 없습니다.",
-    };
-  }
   if (!isMemberLoginId(normalized)) {
     return {
       ok: false as const,
@@ -117,26 +87,10 @@ export function validateMemberLoginId(value: string) {
   };
 }
 
-export function resolveAdminLoginIdentifier(value: string) {
-  const normalized = normalize(value);
-  if (normalized in ADMIN_USERNAME_MAP) {
-    return ADMIN_USERNAME_MAP[normalized as ReservedAdminUsername];
-  }
-  return value.trim();
-}
-
 export function validateLoginIdentifier(value: string) {
   const trimmed = normalizeLoginIdentifierInput(value);
   if (!trimmed) {
     return { ok: false as const, error: "Email 또는 아이디를 입력해 주세요." };
-  }
-
-  if (isReservedAdminUsername(trimmed)) {
-    return { ok: true as const, email: resolveAdminLoginIdentifier(trimmed) };
-  }
-
-  if (isReservedAdminEmail(trimmed) || isAdminEmailDomain(trimmed)) {
-    return { ok: true as const, email: trimmed };
   }
 
   if (isEmailLike(trimmed)) {

@@ -47,21 +47,19 @@ Each key below is a `.env.local` setting in this project.
 
 3. `SUPABASE_SERVICE_ROLE_KEY`
    - Purpose: server-only privileged key for admin APIs and phone availability check.
-   - Where used: `lib/supabase/service-role.ts`, `app/api/register/phone-availability/route.ts`, `lib/admin/server.ts`, `scripts/seed-demo-posts.mjs`, `scripts/seed-admin-users.mjs`.
+   - Where used: `lib/supabase/service-role.ts`, `app/api/register/phone-availability/route.ts`, `lib/admin/server.ts`, `scripts/seed-demo-posts.mjs`, `scripts/sync-portal-admin.mjs`.
    - How to verify:
      - Local: run `echo $env:SUPABASE_SERVICE_ROLE_KEY` and ensure non-empty.
      - API check: POST `/api/register/phone-availability` returns JSON instead of server 500 from missing key.
    - Important: keep this key only on server `.env.local` / hosting env vars. Never expose to client code.
 
-4. `ADMIN_PASSWORD` (optional)
-   - Purpose: seed password for the single reserved admin login id `bvadmin` (`bvadmin@bestvip77.admin.local`) in `scripts/seed-admin-users.mjs`.
-   - Where used: `scripts/seed-admin-users.mjs`.
+4. `PORTAL_ADMIN_EMAIL` (optional)
+   - Purpose: real mailbox used for the portal admin account when running `npm run admin:sync-portal`. Defaults to `kstop12@nate.com` in the script if unset.
+   - Where used: `scripts/sync-portal-admin.mjs`.
    - How to verify:
-     - Set the variable, run `node ./scripts/seed-admin-users.mjs`, then log in at `/login` with id `bvadmin` and this password, open `/admin`.
-
-5. `TEMP_ADMIN_PASSWORD` (optional)
-   - Purpose: same admin user via `npm run admin:temp` (`scripts/create-temp-admin.mjs`). Defaults to email `bvadmin@bestvip77.admin.local` when `TEMP_ADMIN_EMAIL` is unset.
-   - Where used: `scripts/create-temp-admin.mjs`, `package.json` script `admin:temp`.
+     - Apply migration `067_remove_synthetic_portal_admin_auth_users.sql` (removes legacy `@bestvip77.admin.local` auth users).
+     - Run `npm run admin:sync-portal` with `SUPABASE_SERVICE_ROLE_KEY` set: removes other `bestvip77_admins` rows, invites or links the portal admin, and upserts `bestvip77_admins`.
+     - Log in at `/login` with that email; use `/forgot-password` so Supabase sends a password reset link (add your site URL + `/auth/callback` under Supabase Auth redirect URLs).
 
 ## OTP guardrail migration
 
