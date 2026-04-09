@@ -60,6 +60,7 @@ Each key below is a `.env.local` setting in this project.
      - Apply migration `067_remove_synthetic_portal_admin_auth_users.sql` (removes legacy `@bestvip77.admin.local` auth users).
      - Run `npm run admin:sync-portal` with `SUPABASE_SERVICE_ROLE_KEY` set: removes other `bestvip77_admins` rows, invites or links the portal admin, and upserts `bestvip77_admins`.
      - Log in at `/login` with that email; use `/forgot-password` so Supabase sends a password reset link (add your site URL + `/auth/callback` under Supabase Auth redirect URLs).
+     - CLI: `npm run admin:send-password-reset` sends a reset email (defaults: `llangkka00@gmail.com`, `NEXT_PUBLIC_SITE_URL` or `https://bestvip77.com`). Requires `NEXT_PUBLIC_SUPABASE_ANON_KEY` and Auth SMTP / redirect allowlist.
 
 ## OTP guardrail migration
 
