@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "admin:sync-portal": "node ./scripts/sync-portal-admin.mjs",
-    "admin:send-password-reset": "node ./scripts/send-password-reset.mjs"
+    "admin:send-password-reset": "node ./scripts/send-password-reset.mjs",
+    "admin:set-password": "node ./scripts/set-auth-user-password.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.0",
