@@ -1,9 +1,12 @@
 import { createBrowserClient as createSupabaseBrowserClient } from "@supabase/ssr";
+import { requireSupabaseHeaderSafeEnv } from "@/lib/supabase/require-ascii-env";
 
 export function tryCreateBrowserClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
-  if (!url || !key) return null;
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const rawKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!rawUrl?.trim() || !rawKey?.trim()) return null;
+  const url = requireSupabaseHeaderSafeEnv("NEXT_PUBLIC_SUPABASE_URL", rawUrl);
+  const key = requireSupabaseHeaderSafeEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", rawKey);
   return createSupabaseBrowserClient(url, key);
 }
 

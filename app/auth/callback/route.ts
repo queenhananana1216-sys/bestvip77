@@ -1,6 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { requireSupabaseHeaderSafeEnv } from "@/lib/supabase/require-ascii-env";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -9,9 +10,11 @@ export async function GET(request: Request) {
 
   if (code) {
     const cookieStore = await cookies();
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
-    if (supabaseUrl && supabaseKey) {
+    const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const rawKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (rawUrl?.trim() && rawKey?.trim()) {
+      const supabaseUrl = requireSupabaseHeaderSafeEnv("NEXT_PUBLIC_SUPABASE_URL", rawUrl);
+      const supabaseKey = requireSupabaseHeaderSafeEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", rawKey);
       const supabase = createServerClient(supabaseUrl, supabaseKey, {
         cookies: {
           getAll() {

@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { requireSupabaseHeaderSafeEnv } from "@/lib/supabase/require-ascii-env";
 
 /** 비로그인 허용 페이지 */
 const ANON_OK = [
@@ -34,9 +35,18 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
 
   let response = NextResponse.next({ request: { headers: request.headers } });
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
-  if (!url || !key) return response;
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const rawKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!rawUrl?.trim() || !rawKey?.trim()) return response;
+  let url: string;
+  let key: string;
+  try {
+    url = requireSupabaseHeaderSafeEnv("NEXT_PUBLIC_SUPABASE_URL", rawUrl);
+    key = requireSupabaseHeaderSafeEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", rawKey);
+  } catch (err) {
+    console.error("[bestvip77] Supabase URL/anon key에 비ASCII 문자가 섞였습니다. .env.local을 대시보드에서 다시 붙여넣으세요.", err);
+    return response;
+  }
 
   const supabase = createServerClient(url, key, {
     cookies: {

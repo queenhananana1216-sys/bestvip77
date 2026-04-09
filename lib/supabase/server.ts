@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { requireSupabaseHeaderSafeEnv } from "@/lib/supabase/require-ascii-env";
 
 const TIMEOUT_MS = 12_000;
 
@@ -10,9 +11,11 @@ function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise
 
 /** 공개 RLS 읽기 전용 (세션 없음). 환경 변수 없으면 null (빌드·로컬 미설정 대응). */
 export function tryCreatePublicServerClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
-  if (!url || !key) return null;
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const rawKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!rawUrl?.trim() || !rawKey?.trim()) return null;
+  const url = requireSupabaseHeaderSafeEnv("NEXT_PUBLIC_SUPABASE_URL", rawUrl);
+  const key = requireSupabaseHeaderSafeEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", rawKey);
   return createClient(url, key, {
     auth: { autoRefreshToken: false, persistSession: false },
     global: { fetch: fetchWithTimeout },
