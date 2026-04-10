@@ -86,13 +86,13 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
   const isAdmin = Boolean(adminRow);
 
   if (isAdmin) {
-    if (pathname === "/login" || pathname === "/register" || pathname === "/verify-phone" || pathname === "/pending-approval") {
+    if (pathname === "/login" || pathname === "/register" || pathname === "/pending-approval") {
       return redirectTo("/admin");
     }
     return response;
   }
 
-  if (pathname === "/login" || pathname === "/register" || pathname === "/verify-phone" || pathname === "/pending-approval") {
+  if (pathname === "/login" || pathname === "/register" || pathname === "/pending-approval") {
     return redirectTo("/");
   }
 
