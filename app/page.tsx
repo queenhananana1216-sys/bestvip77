@@ -36,10 +36,10 @@ function MarqueeBanner() {
 
 function LaunchHighlights() {
   const items = [
-    { title: "快速註冊", body: "전화번호 인증 없이 바로 가입" },
-    { title: "即時使用", body: "가입 후 추가 승인 없이 바로 이용" },
-    { title: "站內更新", body: "공지와 접속 정보를 수시 갱신" },
-    { title: "會員專區", body: "로그인 회원 중심으로 운영" },
+    { title: "輕鬆註冊", body: "닉네임이랑 아이디만 적으면 돼요. 여기저기 확인할 건 최소로 줄여 두었습니다." },
+    { title: "進站即用", body: "가입하고 나면 바로 이 메인에서 보시면 됩니다. 따로 연락 기다리실 일 없어요." },
+    { title: "站內更新", body: "주소가 바뀌거나 공지 있으면 이쪽에 먼저 적어 둡니다." },
+    { title: "會員專區", body: "로그인해 두시면 목록이랑 안내를 한곳에서 편하게 보실 수 있어요." },
   ];
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
