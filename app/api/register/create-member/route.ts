@@ -13,6 +13,7 @@ type Payload = {
 };
 
 export async function POST(request: Request) {
+  let createdUserId: string | null = null;
   try {
     const body = (await request.json()) as Payload;
     const validated = validateMemberLoginId(body.loginId ?? "");
@@ -34,8 +35,18 @@ export async function POST(request: Request) {
     const country = body.country === "CN" ? "CN" : "KR";
     const serviceClient = createServiceRoleClient();
 
-    // auth.schema 직접 조회 대신 admin.listUsers + filter로 중복 체크
-    // (auth 스키마 직접 접근은 PGRST106 오류 발생)
+    // bestvip77_member_profiles에서 이메일 중복 체크 (빠른 경로)
+    const { data: existingProfile } = await serviceClient
+      .from("bestvip77_member_profiles")
+      .select("user_id")
+      .eq("email", validated.email)
+      .maybeSingle();
+
+    if (existingProfile) {
+      return NextResponse.json({ error: "duplicate_login_id", message: "이미 사용 중인 아이디입니다." }, { status: 409 });
+    }
+
+    // auth.users 중복 체크 (프로필 없이 auth만 남은 고아 계정 방어)
     const { data: userList, error: listError } = await serviceClient.auth.admin.listUsers({
       page: 1,
       perPage: 1000,
@@ -45,10 +56,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: listError.message }, { status: 500 });
     }
 
-    const existingUser = userList?.users?.find((u) => u.email === validated.email);
-    if (existingUser) {
+    const existingAuthUser = userList?.users?.find((u) => u.email === validated.email);
+    if (existingAuthUser) {
       return NextResponse.json({ error: "duplicate_login_id", message: "이미 사용 중인 아이디입니다." }, { status: 409 });
     }
+
     const { data: created, error: createError } = await serviceClient.auth.admin.createUser({
       email: validated.email,
       password,
@@ -77,6 +89,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "user_create_failed" }, { status: 500 });
     }
 
+    createdUserId = userId;
+
     const { error: profileError } = await serviceClient.from("bestvip77_member_profiles").upsert(
       {
         user_id: userId,
@@ -93,15 +107,26 @@ export async function POST(request: Request) {
     );
     if (profileError) {
       await serviceClient.auth.admin.deleteUser(userId);
+      createdUserId = null;
       return NextResponse.json({ error: profileError.message }, { status: 500 });
     }
 
+    createdUserId = null;
     return NextResponse.json({
       ok: true,
       loginId: validated.loginId,
       authEmail: validated.email,
     });
-  } catch {
-    return NextResponse.json({ error: "bad_request" }, { status: 400 });
+  } catch (err) {
+    if (createdUserId) {
+      try {
+        const serviceClient = createServiceRoleClient();
+        await serviceClient.auth.admin.deleteUser(createdUserId);
+      } catch {
+        // rollback best-effort
+      }
+    }
+    const message = err instanceof Error ? err.message : "unknown error";
+    return NextResponse.json({ error: "bad_request", message }, { status: 400 });
   }
 }
